@@ -28,7 +28,7 @@ Remove-Item -Path 'C:\WingetInstall' -Recurse
 function getNewestLink($match) {
 $uri = "https://api.github.com/repos/microsoft/winget-cli/releases/latest"
 Write-Verbose "[$((Get-Date).TimeofDay)] Getting information from $uri"
-$get = Invoke-RestMethod -uri $uri -Method Get -ErrorAction stop
+$get = Invoke-RestMethod -uri $uri -Method Get -UseBasicParsing -ErrorAction stop
 Write-Verbose "[$((Get-Date).TimeofDay)] getting latest release"
 $data = $get[0].assets | Where-Object name -Match $match
 return $data.browser_download_url
@@ -57,7 +57,7 @@ Add-AppxPackage $pkg -ErrorAction SilentlyContinue
 $url = "https://www.nuget.org/api/v2/package/Microsoft.UI.Xaml/2.7.1"
 $nupkgFolder = "Microsoft.UI.Xaml.2.7.1.nupkg"
 $zipFile = "Microsoft.UI.Xaml.2.7.1.nupkg.zip"
-Invoke-WebRequest -Uri $url -OutFile $zipFile
+Invoke-WebRequest -Uri $url -UseBasicParsing -OutFile $zipFile
 Expand-Archive $zipFile
 
 # Determine architecture
