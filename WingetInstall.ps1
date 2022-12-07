@@ -90,8 +90,6 @@ Invoke-WebRequest -Uri $wingetUrl -OutFile $wingetPath
 $wingetLicensePath = "license1.xml"
 Invoke-WebRequest -Uri $wingetLicenseUrl -OutFile $wingetLicensePath
 Add-AppxProvisionedPackage -Online -PackagePath $wingetPath -LicensePath $wingetLicensePath -ErrorAction SilentlyContinue
-
-# Adding WindowsApps directory to PATH variable for current user
 $path = [Environment]::GetEnvironmentVariable("PATH", "User")
 $path = $path + ";" + [IO.Path]::Combine([Environment]::GetEnvironmentVariable("LOCALAPPDATA"), "Microsoft", "WindowsApps")
 [Environment]::SetEnvironmentVariable("PATH", $path, "User")
