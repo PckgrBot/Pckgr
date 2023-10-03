@@ -25,3 +25,5 @@ Add-AppxProvisionedPackage -Online -PackagePath $wingetPath -LicensePath $winget
 $path = [Environment]::GetEnvironmentVariable("PATH", "User")
 $path = $path + ";" + [IO.Path]::Combine([Environment]::GetEnvironmentVariable("LOCALAPPDATA"), "Microsoft", "WindowsApps")
 [Environment]::SetEnvironmentVariable("PATH", $path, "User")
+Remove-Item $wingetPath
+Remove-Item $wingetLicensePath
