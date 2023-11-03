@@ -1,0 +1,72 @@
+##*===============================================
+##* Check Xaml
+##*===============================================
+$packageName = "Microsoft.UI.Xaml.2.7"
+# Find the package with the specific version
+$package = Get-AppxPackage -Name $packageName -ErrorAction SilentlyContinue
+
+if ($package) {
+    Write-Host "Package $packageName is installed."
+} else {
+    Write-Host "Package $packageName is not installed."
+##*===============================================
+##* Updated Xaml Install
+##*===============================================
+# Define the URL and local paths
+$nugetUrl = "https://www.nuget.org/api/v2/package/Microsoft.UI.Xaml/2.7.3"
+$zipFilePath = "Microsoft.UI.Xaml.2.7.3.zip"
+$extractedFolderPath = "C:\Temp\Microsoft.UI.Xaml.2.7.3"  # Changed to a temp directory
+
+# Ensure the extraction directory exists
+if (-not (Test-Path $extractedFolderPath)) {
+    New-Item -ItemType Directory -Path $extractedFolderPath
+}
+
+# Download the NuGet package
+Invoke-WebRequest -Uri $nugetUrl -OutFile $zipFilePath
+
+# Extract the package with overwrite (-Force)
+Expand-Archive -Path $zipFilePath -DestinationPath $extractedFolderPath -Force
+
+# Locate the .appx file
+$appxFile = (Get-ChildItem -Path "$extractedFolderPath\tools\AppX\x64\Release" -Filter "*.appx").FullName
+
+# DISM command to add the package for all users (requires admin privileges)
+dism.exe /Online /Add-ProvisionedAppxPackage /PackagePath:$appxFile /SkipLicense
+
+# Clean up: Remove the extracted files and the downloaded zip file
+Remove-Item -Path $extractedFolderPath -Recurse -Force
+Remove-Item -Path $zipFilePath -Force
+
+# Output message
+Write-Host "Installation complete and temporary files cleaned up."
+}
+##*===============================================
+##* Check Winget
+##*===============================================
+$wingetexe = Resolve-Path "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_x64__8wekyb3d8bbwe\winget.exe"
+if ($wingetexe.count -gt 1){
+    $wingetexe = $wingetexe[-1].Path
+}
+
+$wingettest = & $wingetexe
+if ($wingettest -like "*Windows Package Manager*"){
+    Write-Host "Winget Found, checking version"
+    $wingetVersion = & $wingetexe --version
+    # Removes the leading 'v' and anything following a dash
+    $Version = $wingetVersion -replace '^v|-.+$', ''
+if($Version -ge 1.6)
+    {    
+    Write-Host 'Winget is up to date'
+    Exit 0
+    }
+    else
+    {
+    Write-Host 'Winget is not up to date'
+    Exit 1
+    }
+}
+else {
+    Write-Host 'Winget not Found'
+    Exit 1
+}
