@@ -54,6 +54,7 @@ Add-AppxPackage $pkg -ErrorAction SilentlyContinue
 ##*===============================================
 ##* Download Dependencies
 ##*===============================================
+$ProgressPreference = 'SilentlyContinue'
 $url = "https://www.nuget.org/api/v2/package/Microsoft.UI.Xaml/2.7.1"
 $nupkgFolder = "Microsoft.UI.Xaml.2.7.1.nupkg"
 $zipFile = "Microsoft.UI.Xaml.2.7.1.nupkg.zip"
