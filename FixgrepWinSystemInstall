@@ -1,0 +1,30 @@
+# Define the registry path and values
+$registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\"
+$displayName = "grepWin x64"
+$installLocation = "C:\Windows\system32\config\systemprofile\AppData\Local\Programs\grepWin\"
+
+# Check if the registry key exists
+if (Test-Path -Path $registryPath) {
+    # Get the subkeys
+    $subKeys = Get-ChildItem -Path $registryPath
+
+    foreach ($subKey in $subKeys) {
+        $subKeyPath = $registryPath + $subKey.PSChildName
+
+        # Get the DisplayName and InstallLocation values
+        $currentDisplayName = Get-ItemProperty -Path $subKeyPath -Name "DisplayName" -ErrorAction SilentlyContinue
+        $currentInstallLocation = Get-ItemProperty -Path $subKeyPath -Name "InstallLocation" -ErrorAction SilentlyContinue
+
+        if ($currentDisplayName.DisplayName -eq $displayName -and $currentInstallLocation.InstallLocation -eq $installLocation) {
+            # Delete the registry key
+            Remove-Item -Path $subKeyPath -Recurse -Force
+
+            # Remove the install location
+            Remove-Item -Path $installLocation -Recurse -Force
+
+            Write-Output "The registry key and install location have been deleted."
+        }
+    }
+} else {
+    Write-Output "The registry path does not exist."
+}
