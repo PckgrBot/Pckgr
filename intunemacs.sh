@@ -2,35 +2,11 @@
 # Define a unique lock file for the scripts
 LOCK_FILE="/tmp/intune_script.lock"
 
-# Set the maximum allowed age for the lock file in seconds (e.g., 300 seconds = 5 minutes)
-MAX_LOCK_AGE=300
+# Open a file descriptor for the lock file
+exec 200>"$LOCK_FILE"
 
-# Function to check if any other script is running
-check_running_scripts() {
-  if [ -e "$LOCK_FILE" ]; then
-    # Check the age of the lock file
-    LOCK_AGE=$(($(date +%s) - $(stat -c %Y "$LOCK_FILE")))
-    if [ "$LOCK_AGE" -gt "$MAX_LOCK_AGE" ]; then
-      # Lock file is too old, removing it
-      echo "Stale lock file detected. Removing..."
-      rm -f "$LOCK_FILE"
-      return 0
-    else
-      # Another script is running
-      return 1
-    fi
-  else
-    # No other script is running
-    return 0
-  fi
-}
-# Main loop to wait if any other scripts are running
-while ! check_running_scripts; do
-  echo "Another script is running. Waiting for 10 seconds..."
-  sleep 10
-done
-# Create a lock file to indicate this script is running
-touch "$LOCK_FILE"
+# Attempt to acquire an exclusive lock and wait if the lock is not available
+flock 200
 
 # Ensure the lock file is removed if the script exits unexpectedly
 trap 'rm -f "$LOCK_FILE"; exit $?' INT TERM EXIT
