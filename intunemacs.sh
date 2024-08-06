@@ -1,15 +1,4 @@
 #!/bin/sh
-# Define a unique lock file for the scripts
-LOCK_FILE="/tmp/intune_script.lock"
-
-# Open a file descriptor for the lock file
-exec 200>"$LOCK_FILE"
-
-# Attempt to acquire an exclusive lock and wait if the lock is not available
-flock 200
-
-# Ensure the lock file is removed if the script exits unexpectedly
-trap 'rm -f "$LOCK_FILE"; exit $?' INT TERM EXIT
 # Verify that Installomator has been installed
 destFile="/usr/local/Installomator/Installomator.sh"
 currentInstalledVersion="$(${destFile} version 2>/dev/null || true)"
@@ -500,12 +489,6 @@ if [[ $installomatorVersion -ge 10 && $(sw_vers -buildVersion | cut -c1-2) -ge 2
     sleep 0.5
     #killall "Dialog" 2>/dev/null || true
 fi
-
-# Remove the lock file to indicate the script has finished
-rm -f "$LOCK_FILE"
-
-# Clear the trap for normal exit
-trap - INT TERM EXIT
 
 echo "[$(DATE)][LOG-END]"
 
