@@ -1,4 +1,23 @@
 #!/bin/sh
+LOCKDIR="/tmp/pckgrmac.lock"
+MAX_AGE=300  # Maximum age of the lock file in seconds
+
+while ! mkdir "$LOCKDIR" 2>/dev/null; do
+    echo "Another instance of the script is running, waiting..."
+    
+    # Check if the lock directory is too old
+    if [ $(($(date +%s) - $(stat -c %Y "$LOCKDIR"))) -gt "$MAX_AGE" ]; then
+        echo "The lock directory is too old. Removing stale lock."
+        rm -rf "$LOCKDIR"
+        mkdir "$LOCKDIR" 2>/dev/null
+        break
+    fi
+    
+    sleep 2  # Wait before checking again
+done
+# Ensure the lock directory is removed when the script exits
+trap 'rm -rf "$LOCKDIR"' EXIT
+
 # Verify that Installomator has been installed
 destFile="/usr/local/Installomator/Installomator.sh"
 currentInstalledVersion="$(${destFile} version 2>/dev/null || true)"
