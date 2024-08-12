@@ -5,8 +5,10 @@ MAX_AGE=300  # Maximum age of the lock file in seconds
 while ! mkdir "$LOCKDIR" 2>/dev/null; do
     echo "Another instance of the script is running, waiting..."
     
-    # Check if the lock directory is too old
-    if [ $(($(date +%s) - $(stat -c %Y "$LOCKDIR"))) -gt "$MAX_AGE" ]; then
+    # Check if the lock directory is too old using find
+    LOCK_AGE=$(find "$LOCKDIR" -type d -maxdepth 0 -mtime +$((MAX_AGE / 60)) -print)
+    
+    if [ -n "$LOCK_AGE" ]; then
         echo "The lock directory is too old. Removing stale lock."
         rm -rf "$LOCKDIR"
         mkdir "$LOCKDIR" 2>/dev/null
