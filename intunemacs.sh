@@ -1,6 +1,5 @@
 #!/bin/sh
 
-sudo rm -rf /var/folders/zz
 LOCKDIR="/tmp/pckgrmac.lock"
 MAX_AGE=300  # Maximum age of the lock file in seconds
 
