@@ -1,4 +1,29 @@
 #!/bin/sh
+# =============================================================================
+#  WARNING: Unauthorized Modification Prohibited
+#  ----------------------------------------------------------------------------
+#  Please note that this script includes security measures designed to detect 
+#  and prevent unauthorized use. Any attempts to alter these security features 
+#  or to bypass the subscription validation process may result in immediate 
+#  termination of service and potential legal action.
+#
+#  For support or inquiries, please contact Pckgr support at support@intunepckgr.com.
+#
+#  Thank you for adhering to Pckgr's policies and ensuring the integrity of 
+#  our services.
+# =============================================================================
+
+# Define the Org ID
+ORG_ID="placeholder"
+
+# Call the backend workflow to check subscription status
+SUBSCRIPTION_STATUS=$(curl -s "https://intunepckgr.com/version-test/api/1.1/wf/macos_check?org_id=$ORG_ID")
+
+# Check if the subscription is active
+if [ "$SUBSCRIPTION_STATUS" != "active" ]; then
+    echo "Subscription inactive or expired. Exiting."
+    exit 1
+fi
 
 LOCKDIR="/tmp/pckgrmac.lock"
 MAX_AGE=300  # Maximum age of the lock file in seconds
