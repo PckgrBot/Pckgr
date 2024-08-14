@@ -22,7 +22,7 @@ SUBSCRIPTION_STATUS=$(curl -s "https://intunepckgr.com/version-test/api/1.1/wf/m
 # Check if the subscription is active
 if [ "$SUBSCRIPTION_STATUS" != "active" ]; then
     echo "Subscription inactive or expired. Exiting."
-    exit 1
+    exit 0
 fi
 
 LOCKDIR="/tmp/pckgrmac.lock"
