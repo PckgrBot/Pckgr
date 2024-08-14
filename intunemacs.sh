@@ -17,11 +17,13 @@
 ORG_ID="placeholder"
 
 # Call the backend workflow to check subscription status
-API_RESPONSE=$(curl -s "https://intunepckgr.com/version-test/api/1.1/wf/macos_check?id=$ORG_ID")
+API_RESPONSE=$(curl -s "https://intunepckgr.com/api/1.1/wf/macos_check?id=$ORG_ID")
 
-# Extract the status and response fields using jq
-STATUS=$(echo $API_RESPONSE | jq -r '.status')
-SUBSCRIPTION_STATUS=$(echo $API_RESPONSE | jq -r '.response')
+# Extract the 'status' value
+STATUS=$(echo $API_RESPONSE | sed -n 's/.*"status": "\(.*\)", "response".*/\1/p')
+
+# Extract the 'response' value
+SUBSCRIPTION_STATUS=$(echo $API_RESPONSE | sed -n 's/.*"response": "\(.*\)" }.*/\1/p')
 
 # Check if the subscription is active
 if [ "$STATUS" != "success" ] || [ "$SUBSCRIPTION_STATUS" != "active" ]; then
