@@ -17,7 +17,7 @@
 ORG_ID="placeholder"
 
 # Call the backend workflow to check subscription status
-SUBSCRIPTION_STATUS=$(curl -s "https://intunepckgr.com/version-test/api/1.1/wf/macos_check?org_id=$ORG_ID")
+SUBSCRIPTION_STATUS=$(curl -s "https://intunepckgr.com/version-test/api/1.1/wf/macos_check?id=$ORG_ID")
 
 # Check if the subscription is active
 if [ "$SUBSCRIPTION_STATUS" != "active" ]; then
