@@ -23,7 +23,8 @@ API_RESPONSE=$(curl -s "https://intunepckgr.com/api/1.1/wf/macos_check?id=$ORG_I
 STATUS=$(echo $API_RESPONSE | sed -n 's/.*"status": "\(.*\)", "response".*/\1/p')
 
 # Extract the 'response' value
-SUBSCRIPTION_STATUS=$(echo $API_RESPONSE | sed -n 's/.*"response": "\(.*\)" }.*/\1/p')
+SUBSCRIPTION_STATUS=$(echo $API_RESPONSE | sed -n 's/.*"response": { "status": "\(.*\)" }.*/\1/p')
+
 
 # Check if the subscription is active
 if [ "$STATUS" != "success" ] || [ "$SUBSCRIPTION_STATUS" != "active" ]; then
