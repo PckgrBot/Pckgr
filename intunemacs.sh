@@ -506,7 +506,7 @@ else
 
     "${dialogCMD[@]}" &
 
-    echo "$(date +%F\ %T) : SwiftDialog started!"
+    #echo "$(date +%F\ %T) : SwiftDialog started!"
 
     # give everything a moment to catch up
     sleep 0.1
