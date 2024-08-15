@@ -169,10 +169,10 @@ if [ ! -d "/Library/Application Support/Dialog" ]; then
 fi
 dialog_printlog "$(file "/Library/Application Support/Dialog")"
 if [[ -n $icon ]]; then
-    #dialog_printlog "icon defined, so investigating that for Dialog!"
+    dialog_printlog "icon defined, so investigating that for Dialog!"
     if [[ -n "$(file "$dialogIconLocation" | cut -d: -f2 | grep -o "PNG image data")" ]]; then
-        #dialog_printlog "$(file "${dialogIconLocation}")"
-        #dialog_printlog "swiftDialog icon already exists as PNG file, so continuing..."
+        dialog_printlog "$(file "${dialogIconLocation}")"
+        dialog_printlog "swiftDialog icon already exists as PNG file, so continuing..."
     elif [[ "$( echo $icon | cut -d/ -f1 | cut -c 1-4 )" = "http" ]]; then
         dialog_printlog "icon is web-link, downloading..."
         if ! curl -fs "$icon" -o "$dialogIconLocation"; then
