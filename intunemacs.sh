@@ -16,7 +16,21 @@
 # Define the Org ID
 ORG_ID="placeholder"
 
+# Call the backend workflow to check subscription status
+API_RESPONSE=$(curl -s "https://intunepckgr.com/api/1.1/wf/macos_check?id=$ORG_ID")
 
+# Extract the 'status' value
+STATUS=$(echo $API_RESPONSE | sed -n 's/.*"status": "\(.*\)", "response".*/\1/p')
+
+# Extract the 'response' value
+SUBSCRIPTION_STATUS=$(echo $API_RESPONSE | sed -n 's/.*"response": { "status": "\(.*\)" }.*/\1/p')
+
+
+# Check if the subscription is active
+if [ "$STATUS" != "success" ] || [ "$SUBSCRIPTION_STATUS" != "active" ]; then
+    echo "Subscription inactive or verification failed. Exiting."
+    exit 0
+fi
 
 LOCKDIR="/tmp/pckgrmac.lock"
 MAX_AGE=300  # Maximum age of the lock file in seconds
@@ -288,8 +302,6 @@ dialog_printlog "$(date +%F\ %T) : [LOG-END] ${dialog_log_message}"
 LOGO="microsoft"
 
 item=""
-appname=""
-appversion=""
 
 # Dialog icon and overlay icon
 icon=""
@@ -321,7 +333,7 @@ checkCmdOutput () {
     local checkOutput="$1"
     exitStatus="$( echo "${checkOutput}" | grep --binary-files=text -i "exit" | tail -1 | sed -E 's/.*exit code ([0-9]).*/\1/g' || true )"
     if [[ ${exitStatus} -eq 0 ]] ; then
-        #echo "Succesfully installed."
+        #echo "${item} succesfully installed."
         selectedOutput="$( echo "${checkOutput}" | grep --binary-files=text -E ": (REQ|ERROR|WARN)" || true )"
         #echo "$selectedOutput"
     else
