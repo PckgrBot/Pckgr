@@ -335,7 +335,7 @@ checkCmdOutput () {
     if [[ ${exitStatus} -eq 0 ]] ; then
         #echo "${item} succesfully installed."
         selectedOutput="$( echo "${checkOutput}" | grep --binary-files=text -E ": (REQ|ERROR|WARN)" || true )"
-        echo "$selectedOutput"
+        #echo "$selectedOutput"
     else
         echo "ERROR installing ${item}. Exit code ${exitStatus}"
         echo "$checkOutput"
