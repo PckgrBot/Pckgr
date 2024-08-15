@@ -171,7 +171,7 @@ dialog_printlog "$(file "/Library/Application Support/Dialog")"
 if [[ -n $icon ]]; then
     #dialog_printlog "icon defined, so investigating that for Dialog!"
     if [[ -n "$(file "$dialogIconLocation" | cut -d: -f2 | grep -o "PNG image data")" ]]; then
-        #dialog_printlog "$(file "${dialogIconLocation}")"
+        dialog_printlog "$(file "${dialogIconLocation}")"
         #dialog_printlog "swiftDialog icon already exists as PNG file, so continuing..."
     elif [[ "$( echo $icon | cut -d/ -f1 | cut -c 1-4 )" = "http" ]]; then
         dialog_printlog "icon is web-link, downloading..."
@@ -211,11 +211,11 @@ if [[ -n $icon ]]; then
 else
     dialog_printlog "icon not defined."
 fi
-#dialog_printlog "INSTALL=${INSTALL}"
+dialog_printlog "INSTALL=${INSTALL}"
 
 # Install Swift Dialog
 name="Dialog"
-#dialog_printlog "$name check for installation"
+dialog_printlog "$name check for installation"
 gitusername="swiftDialog"
 gitreponame="swiftDialog"
 filetype="pkg"
@@ -229,7 +229,7 @@ expectedTeamID="PWA5E9TQ59"
 dialog_destFile="/Library/Application Support/Dialog/Dialog.app"
 versionKey="CFBundleShortVersionString"
 currentInstalledVersion="$(/usr/libexec/PlistBuddy -c "Print :$versionKey" "${dialog_destFile}/Contents/Info.plist" | tr -d "[:special:]" || true)"
-#dialog_printlog "${name} version installed: $currentInstalledVersion"
+dialog_printlog "${name} version installed: $currentInstalledVersion"
 
 destFile2="/usr/local/bin/dialog"
 if [[ ! -d "${dialog_destFile}" || ! -x "${destFile2}" || "$currentInstalledVersion" != "$appNewVersion" || "$INSTALL" == "force" ]]; then
@@ -289,10 +289,10 @@ if [[ ! -d "${dialog_destFile}" || ! -x "${destFile2}" || "$currentInstalledVers
         dialog_printlog "$name version $appNewVersion installed!"
     fi
 else
-    #dialog_printlog "$name version $appNewVersion already found. Perfect!"
+    dialog_printlog "$name version $appNewVersion already found. Perfect!"
 fi
 
-#dialog_printlog "$(date +%F\ %T) : [LOG-END] ${dialog_log_message}"
+dialog_printlog "$(date +%F\ %T) : [LOG-END] ${dialog_log_message}"
 
 # Continue with Installomator script
 
