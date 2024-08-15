@@ -546,7 +546,4 @@ if [[ $installomatorVersion -ge 10 && $(sw_vers -buildVersion | cut -c1-2) -ge 2
     #killall "Dialog" 2>/dev/null || true
 fi
 
-echo "[$(DATE)][LOG-END]"
-
-echo "Installation completed successfully."
 caffexit $exitStatus
