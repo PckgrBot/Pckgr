@@ -546,4 +546,6 @@ fi
 
 echo "[$(DATE)][LOG-END]"
 
+exec > /dev/tty 2>&1
+echo "Installation completed successfully."
 caffexit $exitStatus
