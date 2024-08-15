@@ -169,10 +169,7 @@ if [ ! -d "/Library/Application Support/Dialog" ]; then
 fi
 dialog_printlog "$(file "/Library/Application Support/Dialog")"
 if [[ -n $icon ]]; then
-    dialog_printlog "icon defined, so investigating that for Dialog!"
     if [[ -n "$(file "$dialogIconLocation" | cut -d: -f2 | grep -o "PNG image data")" ]]; then
-        dialog_printlog "$(file "${dialogIconLocation}")"
-        dialog_printlog "swiftDialog icon already exists as PNG file, so continuing..."
     elif [[ "$( echo $icon | cut -d/ -f1 | cut -c 1-4 )" = "http" ]]; then
         dialog_printlog "icon is web-link, downloading..."
         if ! curl -fs "$icon" -o "$dialogIconLocation"; then
@@ -403,17 +400,14 @@ else
     if [[ "$(echo ${icon} | grep -iE "^(http|ftp).*")" != ""  ]]; then
         #echo "icon looks to be web-link"
         if ! curl -sfL --output /dev/null -r 0-0 "${icon}" ; then
-            echo "ERROR: Cannot download ${icon} link. Reset icon."
             icon=""
         fi
     elif [[ "$(echo ${icon} | grep -iE "^\/.*")" != "" ]]; then
         #echo "icon looks to be a file"
         if [[ ! -a "${icon}" ]]; then
-            echo "ERROR: Cannot find icon file ${icon}. Reset icon."
             icon=""
         fi
     else
-        echo "ERROR: Cannot figure out icon ${icon}. Reset icon."
         icon=""
     fi
     #echo "icon after first check: $icon"
@@ -500,11 +494,11 @@ else
         dialogCMD+=("--overlayicon" ${overlayicon})
     fi
 
-    echo "dialogCMD: ${dialogCMD[*]}"
+    #echo "dialogCMD: ${dialogCMD[*]}"
 
     "${dialogCMD[@]}" &
 
-    echo "$(date +%F\ %T) : SwiftDialog started!"
+    #echo "$(date +%F\ %T) : SwiftDialog started!"
 
     # give everything a moment to catch up
     sleep 0.1
@@ -513,22 +507,6 @@ fi
 # Install software using Installomator
 cmdOutput="$(${destFile} ${item} LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} || true)"
 checkCmdOutput "${cmdOutput}"
-
-# Mark: dockutil stuff
-if [[ $addToDock -eq 1 ]]; then
-    dialogUpdate "progresstext: Adding to Dock"
-    if [[ ! -d $dockutil ]]; then
-        echo "Cannot find dockutil at $dockutil, trying installation"
-        # Install using Installlomator
-        cmdOutput="$(${destFile} dockutil LOGO=$LOGO BLOCKING_PROCESS_ACTION=ignore LOGGING=REQ NOTIFY=silent || true)"
-        checkCmdOutput "${cmdOutput}"
-    fi
-    echo "Adding to Dock"
-    $dockutil  --add "${appPath}" "${userHome}/Library/Preferences/com.apple.dock.plist" || true
-    sleep 1
-else
-    echo "Not adding to Dock."
-fi
 
 # Mark: Ending
 if [[ $installomatorVersion -ge 10 && $(sw_vers -buildVersion | cut -c1-2) -ge 20 ]]; then
