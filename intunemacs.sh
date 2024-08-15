@@ -333,9 +333,9 @@ checkCmdOutput () {
     local checkOutput="$1"
     exitStatus="$( echo "${checkOutput}" | grep --binary-files=text -i "exit" | tail -1 | sed -E 's/.*exit code ([0-9]).*/\1/g' || true )"
     if [[ ${exitStatus} -eq 0 ]] ; then
-        #echo "${item} succesfully installed."
+        echo "${item} succesfully installed."
         selectedOutput="$( echo "${checkOutput}" | grep --binary-files=text -E ": (REQ|ERROR|WARN)" || true )"
-        #echo "$selectedOutput"
+        echo "$selectedOutput"
     else
         echo "ERROR installing ${item}. Exit code ${exitStatus}"
         echo "$checkOutput"
@@ -506,7 +506,7 @@ else
 
     "${dialogCMD[@]}" &
 
-    #echo "$(date +%F\ %T) : SwiftDialog started!"
+    echo "$(date +%F\ %T) : SwiftDialog started!"
 
     # give everything a moment to catch up
     sleep 0.1
@@ -529,7 +529,7 @@ if [[ $addToDock -eq 1 ]]; then
     $dockutil  --add "${appPath}" "${userHome}/Library/Preferences/com.apple.dock.plist" || true
     sleep 1
 else
-    #echo "Not adding to Dock."
+    echo "Not adding to Dock."
 fi
 
 # Mark: Ending
@@ -545,4 +545,8 @@ if [[ $installomatorVersion -ge 10 && $(sw_vers -buildVersion | cut -c1-2) -ge 2
     sleep 0.5
     #killall "Dialog" 2>/dev/null || true
 fi
+
+echo "[$(DATE)][LOG-END]"
+
+echo "Installation completed successfully."
 caffexit $exitStatus
