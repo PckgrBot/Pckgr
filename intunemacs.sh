@@ -60,7 +60,7 @@ if [[ ! -e "${destFile}" ]]; then
     printlog "Installomator not found. Installing it now."
 
     name="Installomator"
-    printlog "$name check for installation"
+    #printlog "$name check for installation"
     gitusername="Installomator"
     gitreponame="Installomator"
     filetype="pkg"
@@ -215,7 +215,7 @@ dialog_printlog "INSTALL=${INSTALL}"
 
 # Install Swift Dialog
 name="Dialog"
-dialog_printlog "$name check for installation"
+#dialog_printlog "$name check for installation"
 gitusername="swiftDialog"
 gitreponame="swiftDialog"
 filetype="pkg"
