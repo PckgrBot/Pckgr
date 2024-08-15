@@ -302,6 +302,8 @@ dialog_printlog "$(date +%F\ %T) : [LOG-END] ${dialog_log_message}"
 LOGO="microsoft"
 
 item=""
+appname=""
+appversion=""
 
 # Dialog icon and overlay icon
 icon=""
@@ -333,7 +335,7 @@ checkCmdOutput () {
     local checkOutput="$1"
     exitStatus="$( echo "${checkOutput}" | grep --binary-files=text -i "exit" | tail -1 | sed -E 's/.*exit code ([0-9]).*/\1/g' || true )"
     if [[ ${exitStatus} -eq 0 ]] ; then
-        #echo "${item} succesfully installed."
+        echo "${appname} ${version} succesfully installed."
         selectedOutput="$( echo "${checkOutput}" | grep --binary-files=text -E ": (REQ|ERROR|WARN)" || true )"
         #echo "$selectedOutput"
     else
