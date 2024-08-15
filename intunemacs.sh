@@ -529,7 +529,8 @@ if [[ $addToDock -eq 1 ]]; then
     $dockutil  --add "${appPath}" "${userHome}/Library/Preferences/com.apple.dock.plist" || true
     sleep 1
 else
-    echo "Not adding to Dock."
+    #echo "Not adding to Dock."
+    :
 fi
 
 # Mark: Ending
