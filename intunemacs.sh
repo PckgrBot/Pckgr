@@ -149,9 +149,11 @@ dialog_label="Dialog-v$dialogScriptVersion"
 dialog_printlog() {
     timestamp=$(date +%F\ %T)
     if [[ "$(whoami)" == "root" ]]; then
-        #echo "$timestamp :: $dialog_label : $1" | tee -a $log_location
+        :
+        # echo "$timestamp :: $dialog_label : $1" | tee -a $log_location
     else
-        #echo "$timestamp :: $dialog_label : $1"
+        :
+        # echo "$timestamp :: $dialog_label : $1"
     fi
 }
 dialog_printlog "$(date +%F\ %T) : [LOG-BEGIN] ${dialog_log_message}"
