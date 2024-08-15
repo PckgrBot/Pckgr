@@ -16,22 +16,6 @@
 # Define the Org ID
 ORG_ID="placeholder"
 
-# Call the backend workflow to check subscription status
-API_RESPONSE=$(curl -s "https://intunepckgr.com/api/1.1/wf/macos_check?id=$ORG_ID")
-
-# Extract the 'status' value
-STATUS=$(echo $API_RESPONSE | sed -n 's/.*"status": "\(.*\)", "response".*/\1/p')
-
-# Extract the 'response' value
-SUBSCRIPTION_STATUS=$(echo $API_RESPONSE | sed -n 's/.*"response": { "status": "\(.*\)" }.*/\1/p')
-
-
-# Check if the subscription is active
-if [ "$STATUS" != "success" ] || [ "$SUBSCRIPTION_STATUS" != "active" ]; then
-    echo "Subscription inactive or verification failed. Exiting."
-    exit 0
-fi
-
 LOCKDIR="/tmp/pckgrmac.lock"
 MAX_AGE=300  # Maximum age of the lock file in seconds
 
