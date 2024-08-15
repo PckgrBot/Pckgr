@@ -60,7 +60,7 @@ if [[ ! -e "${destFile}" ]]; then
     printlog "Installomator not found. Installing it now."
 
     name="Installomator"
-    #printlog "$name check for installation"
+    printlog "$name check for installation"
     gitusername="Installomator"
     gitreponame="Installomator"
     filetype="pkg"
