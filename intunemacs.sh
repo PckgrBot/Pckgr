@@ -370,7 +370,7 @@ fi
 caffeinatepid=$!
 caffexit () {
     kill "$caffeinatepid"
-    exit $1
+    exit 0
 }
 
 # Mark: Installation begins
