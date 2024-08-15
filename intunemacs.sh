@@ -36,13 +36,13 @@ LOCKDIR="/tmp/pckgrmac.lock"
 MAX_AGE=300  # Maximum age of the lock file in seconds
 
 while ! mkdir "$LOCKDIR" 2>/dev/null; do
-    echo "Another instance of the script is running, waiting..."
+    #echo "Another instance of the script is running, waiting..."
     
     # Check if the lock directory is too old using find
     LOCK_AGE=$(find "$LOCKDIR" -type d -maxdepth 0 -mtime +$((MAX_AGE / 60)) -print)
     
     if [ -n "$LOCK_AGE" ]; then
-        echo "The lock directory is too old. Removing stale lock."
+        #echo "The lock directory is too old. Removing stale lock."
         rm -rf "$LOCKDIR"
         mkdir "$LOCKDIR" 2>/dev/null
         break
@@ -317,14 +317,14 @@ installomatorOptions="BLOCKING_PROCESS_ACTION=prompt_user DIALOG_CMD_FILE=${dial
 scriptVersion="10.5"
 # PATH declaration
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
-echo "$(date +%F\ %T) [LOG-BEGIN] $item, v$scriptVersion"
+#echo "$(date +%F\ %T) [LOG-BEGIN] $item, v$scriptVersion"
 dialogUpdate() {
     # $1: dialog command
     local dcommand="$1"
 
     if [[ -n $dialog_command_file ]]; then
         echo "$dcommand" >> "$dialog_command_file"
-        echo "Dialog: $dcommand"
+        #echo "Dialog: $dcommand"
     fi
 }
 checkCmdOutput () {
@@ -396,24 +396,24 @@ else
     else
         message="Installing ${item}…"
     fi
-    echo "$item $itemName"
+    #echo "$item $itemName"
 
     #Check icon (expecting beginning with “http” to be web-link and “/” to be disk file)
     #echo "icon before check: $icon"
     if [[ "$(echo ${icon} | grep -iE "^(http|ftp).*")" != ""  ]]; then
         #echo "icon looks to be web-link"
         if ! curl -sfL --output /dev/null -r 0-0 "${icon}" ; then
-            echo "ERROR: Cannot download ${icon} link. Reset icon."
+            #echo "ERROR: Cannot download ${icon} link. Reset icon."
             icon=""
         fi
     elif [[ "$(echo ${icon} | grep -iE "^\/.*")" != "" ]]; then
         #echo "icon looks to be a file"
         if [[ ! -a "${icon}" ]]; then
-            echo "ERROR: Cannot find icon file ${icon}. Reset icon."
+            #echo "ERROR: Cannot find icon file ${icon}. Reset icon."
             icon=""
         fi
     else
-        echo "ERROR: Cannot figure out icon ${icon}. Reset icon."
+        #echo "ERROR: Cannot figure out icon ${icon}. Reset icon."
         icon=""
     fi
     #echo "icon after first check: $icon"
@@ -481,8 +481,8 @@ else
             icon="${LOGO_PATH}"
         fi
     fi
-    echo "LOGO: $LOGO"
-    echo "icon: ${icon}"
+    #echo "LOGO: $LOGO"
+    #echo "icon: ${icon}"
 
     # display first screen
     dialogCMD=("$dialogBinary"
@@ -500,7 +500,7 @@ else
         dialogCMD+=("--overlayicon" ${overlayicon})
     fi
 
-    echo "dialogCMD: ${dialogCMD[*]}"
+    #echo "dialogCMD: ${dialogCMD[*]}"
 
     "${dialogCMD[@]}" &
 
@@ -546,6 +546,5 @@ fi
 
 echo "[$(DATE)][LOG-END]"
 
-exec > /dev/tty 2>&1
 echo "Installation completed successfully."
 caffexit $exitStatus
