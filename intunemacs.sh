@@ -215,7 +215,7 @@ dialog_printlog "INSTALL=${INSTALL}"
 
 # Install Swift Dialog
 name="Dialog"
-#dialog_printlog "$name check for installation"
+dialog_printlog "$name check for installation"
 gitusername="swiftDialog"
 gitreponame="swiftDialog"
 filetype="pkg"
