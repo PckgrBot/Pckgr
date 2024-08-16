@@ -333,54 +333,35 @@ dialogUpdate() {
 checkCmdOutput () {
     local checkOutput="$1"
     local installedVersion=""
-    local logFile="/tmp/installomator_output.log"  # Set log file path to /tmp
-
-    # Start logging
-    echo "----------" >> "$logFile"
-    echo "New Execution at $(date)" >> "$logFile"
-    echo "Full Output:" >> "$logFile"
-    echo "$checkOutput" >> "$logFile"
-    echo "----------" >> "$logFile"
 
     # Extract the exit status from the Installomator output
     exitStatus="$(echo "${checkOutput}" | grep --binary-files=text -i "exit" | tail -1 | sed -E 's/.*exit code ([0-9]).*/\1/g' || true)"
-    echo "Extracted exitStatus: $exitStatus" >> "$logFile"
 
     # Check if the command was successful
     if [[ ${exitStatus} -eq 0 ]]; then
         # Extract relevant information
         selectedOutput="$(echo "${checkOutput}" | grep --binary-files=text -E ": (REQ|INFO|WARN)" || true)"
-        echo "Selected Output:" >> "$logFile"
-        echo "$selectedOutput" >> "$logFile"
 
         # Check if "There is no newer version available" is present
         if echo "$selectedOutput" | grep -q "There is no newer version available."; then
             # Extract the installed version from the appversion line
             installedVersion=$(echo "$selectedOutput" | awk -F'appversion: ' '/appversion:/ {print $2}' | awk '{print $1}')
-            echo "Extracted installedVersion from appversion (no update): $installedVersion" >> "$logFile"
         else
             # Extract the installed version from the Installed line
             installedVersion=$(echo "$selectedOutput" | grep -oE "Installed .* version [^,]+" | awk '{print $NF}')
-            echo "Extracted installedVersion from Installed line (update occurred): $installedVersion" >> "$logFile"
         fi
 
         # Echo the installed version
         if [[ -n $installedVersion ]]; then
             echo "Installed Version: $installedVersion"
-            echo "Installed Version: $installedVersion" >> "$logFile"
         else
             echo "Could not determine installed version."
-            echo "Could not determine installed version." >> "$logFile"
         fi
     else
         # If there was an error, output the error and exit status
         echo "ERROR installing ${item}. Exit code ${exitStatus}"
-        echo "ERROR installing ${item}. Exit code ${exitStatus}" >> "$logFile"
-        echo "$checkOutput" >> "$logFile"
+        echo "$checkOutput"
     fi
-
-    echo "End of Execution at $(date)" >> "$logFile"
-    echo "----------" >> "$logFile"
 }
 
 # Check the currently logged in user
