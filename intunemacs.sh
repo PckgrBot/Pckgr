@@ -381,6 +381,7 @@ checkCmdOutput () {
     echo "----------" >> "$logFile"
 }
 
+
 # Check the currently logged in user
 currentUser=$(stat -f "%Su" /dev/console)
 if [ -z "$currentUser" ] || [ "$currentUser" = "loginwindow" ] || [ "$currentUser" = "_mbsetupuser" ] || [ "$currentUser" = "root" ]; then
