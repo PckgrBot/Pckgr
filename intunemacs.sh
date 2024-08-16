@@ -335,19 +335,31 @@ checkCmdOutput () {
     local installedVersion=""
     local logFile="/tmp/installomator_output.log"  # Set log file path to /tmp
 
+    # Start logging
+    echo "----------" >> "$logFile"
+    echo "New Execution at $(date)" >> "$logFile"
+    echo "Full Output:" >> "$logFile"
+    echo "$checkOutput" >> "$logFile"
+    echo "----------" >> "$logFile"
+
     # Extract the exit status from the Installomator output
     exitStatus="$(echo "${checkOutput}" | grep --binary-files=text -i "exit" | tail -1 | sed -E 's/.*exit code ([0-9]).*/\1/g' || true)"
+    echo "Extracted exitStatus: $exitStatus" >> "$logFile"
 
     # Check if the command was successful
     if [[ ${exitStatus} -eq 0 ]]; then
         # Extract relevant information
         selectedOutput="$(echo "${checkOutput}" | grep --binary-files=text -E ": (REQ|INFO|WARN)" || true)"
+        echo "Selected Output:" >> "$logFile"
+        echo "$selectedOutput" >> "$logFile"
 
         # Determine the installed version
         if echo "$selectedOutput" | grep -q "No newer version available."; then
             installedVersion=$(echo "$selectedOutput" | grep "appversion:" | sed -E 's/.*appversion: ([^ ]+).*/\1/')
+            echo "Extracted installedVersion from appversion: $installedVersion" >> "$logFile"
         elif echo "$selectedOutput" | grep -q "Installed"; then
             installedVersion=$(echo "$selectedOutput" | grep "Installed" | sed -E 's/.*Installed.*, version ([^,]+).*/\1/')
+            echo "Extracted installedVersion from Installed: $installedVersion" >> "$logFile"
         fi
 
         # Echo the installed version
@@ -364,6 +376,9 @@ checkCmdOutput () {
         echo "ERROR installing ${item}. Exit code ${exitStatus}" >> "$logFile"
         echo "$checkOutput" >> "$logFile"
     fi
+
+    echo "End of Execution at $(date)" >> "$logFile"
+    echo "----------" >> "$logFile"
 }
 
 # Check the currently logged in user
