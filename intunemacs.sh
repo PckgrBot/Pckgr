@@ -329,9 +329,11 @@ dialogUpdate() {
         #echo "Dialog: $dcommand"
     fi
 }
+
 checkCmdOutput () {
     local checkOutput="$1"
     local installedVersion=""
+    local logFile="/tmp/installomator_output.log"  # Set log file path to /tmp
 
     # Extract the exit status from the Installomator output
     exitStatus="$(echo "${checkOutput}" | grep --binary-files=text -i "exit" | tail -1 | sed -E 's/.*exit code ([0-9]).*/\1/g' || true)"
@@ -342,8 +344,8 @@ checkCmdOutput () {
         selectedOutput="$(echo "${checkOutput}" | grep --binary-files=text -E ": (REQ|INFO)" || true)"
 
         # Determine the installed version
-        if echo "$selectedOutput" | grep -q "There is no newer version available."; then
-            installedVersion=$(echo "$selectedOutput" | grep "appversion:" | awk '{print $NF}')
+        if echo "$selectedOutput" | grep -q "No newer version available."; then
+            installedVersion=$(echo "$selectedOutput" | grep "found app at" | sed -E 's/.*version ([^,]+).*/\1/')
         elif echo "$selectedOutput" | grep -q "Installed"; then
             installedVersion=$(echo "$selectedOutput" | grep "Installed" | sed -E 's/.*version ([^,]+).*/\1/')
         fi
@@ -351,13 +353,16 @@ checkCmdOutput () {
         # Echo the installed version
         if [[ -n $installedVersion ]]; then
             echo "Installed Version: $installedVersion"
+            echo "Installed Version: $installedVersion" >> "$logFile"
         else
             echo "Could not determine installed version."
+            echo "Could not determine installed version." >> "$logFile"
         fi
     else
         # If there was an error, output the error and exit status
         echo "ERROR installing ${item}. Exit code ${exitStatus}"
-        echo "$checkOutput"
+        echo "ERROR installing ${item}. Exit code ${exitStatus}" >> "$logFile"
+        echo "$checkOutput" >> "$logFile"
     fi
 }
 
