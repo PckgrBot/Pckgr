@@ -333,9 +333,9 @@ checkCmdOutput () {
     local checkOutput="$1"
     exitStatus="$( echo "${checkOutput}" | grep --binary-files=text -i "exit" | tail -1 | sed -E 's/.*exit code ([0-9]).*/\1/g' || true )"
     if [[ ${exitStatus} -eq 0 ]] ; then
-        echo "Succesfully Installed."
-        selectedOutput="$( echo "${checkOutput}" | grep --binary-files=text -E ": (REQ|ERROR|WARN)" || true )"
-        #echo "$selectedOutput"
+        #echo "Succesfully Installed."
+        selectedOutput="$( echo "${checkOutput}" | grep --binary-files=text -E ": (REQ)" || true )"
+        echo "$selectedOutput"
     else
         echo "ERROR installing ${item}. Exit code ${exitStatus}"
         echo "$checkOutput"
