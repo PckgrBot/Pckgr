@@ -353,9 +353,16 @@ checkCmdOutput () {
         echo "Selected Output:" >> "$logFile"
         echo "$selectedOutput" >> "$logFile"
 
-        # Extract the installed version using awk
-        installedVersion=$(echo "$selectedOutput" | awk -F'appversion: ' '/appversion:/ {print $2}' | awk '{print $1}')
-        echo "Extracted installedVersion: $installedVersion" >> "$logFile"
+        # Check if "There is no newer version available" is present
+        if echo "$selectedOutput" | grep -q "There is no newer version available."; then
+            # Extract the installed version from the appversion line
+            installedVersion=$(echo "$selectedOutput" | awk -F'appversion: ' '/appversion:/ {print $2}' | awk '{print $1}')
+            echo "Extracted installedVersion from appversion (no update): $installedVersion" >> "$logFile"
+        else
+            # Extract the installed version from the Installed line
+            installedVersion=$(echo "$selectedOutput" | grep -oE "Installed .* version [^,]+" | awk '{print $NF}')
+            echo "Extracted installedVersion from Installed line (update occurred): $installedVersion" >> "$logFile"
+        fi
 
         # Echo the installed version
         if [[ -n $installedVersion ]]; then
@@ -375,7 +382,6 @@ checkCmdOutput () {
     echo "End of Execution at $(date)" >> "$logFile"
     echo "----------" >> "$logFile"
 }
-
 
 # Check the currently logged in user
 currentUser=$(stat -f "%Su" /dev/console)
