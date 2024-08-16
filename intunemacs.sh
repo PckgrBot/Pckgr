@@ -353,14 +353,9 @@ checkCmdOutput () {
         echo "Selected Output:" >> "$logFile"
         echo "$selectedOutput" >> "$logFile"
 
-        # Determine the installed version
-        if echo "$selectedOutput" | grep -q "No newer version available."; then
-            installedVersion=$(echo "$selectedOutput" | grep "appversion:" | sed -E 's/.*appversion: ([^ ]+).*/\1/')
-            echo "Extracted installedVersion from appversion: $installedVersion" >> "$logFile"
-        elif echo "$selectedOutput" | grep -q "Installed"; then
-            installedVersion=$(echo "$selectedOutput" | grep "Installed" | sed -E 's/.*Installed.*, version ([^,]+).*/\1/')
-            echo "Extracted installedVersion from Installed: $installedVersion" >> "$logFile"
-        fi
+        # Directly extract the installed version from the appversion line
+        installedVersion=$(echo "$selectedOutput" | grep -m1 "appversion:" | awk -F: '{print $2}' | xargs)
+        echo "Extracted installedVersion: $installedVersion" >> "$logFile"
 
         # Echo the installed version
         if [[ -n $installedVersion ]]; then
