@@ -353,8 +353,8 @@ checkCmdOutput () {
         echo "Selected Output:" >> "$logFile"
         echo "$selectedOutput" >> "$logFile"
 
-        # Extract the installed version from the appversion line
-        installedVersion=$(echo "$selectedOutput" | grep -m1 "appversion:" | cut -d':' -f2 | xargs)
+        # Extract the installed version using awk
+        installedVersion=$(echo "$selectedOutput" | awk -F'appversion: ' '/appversion:/ {print $2}' | awk '{print $1}')
         echo "Extracted installedVersion: $installedVersion" >> "$logFile"
 
         # Echo the installed version
