@@ -341,13 +341,13 @@ checkCmdOutput () {
     # Check if the command was successful
     if [[ ${exitStatus} -eq 0 ]]; then
         # Extract relevant information
-        selectedOutput="$(echo "${checkOutput}" | grep --binary-files=text -E ": (REQ|INFO)" || true)"
+        selectedOutput="$(echo "${checkOutput}" | grep --binary-files=text -E ": (REQ|INFO|WARN)" || true)"
 
         # Determine the installed version
         if echo "$selectedOutput" | grep -q "No newer version available."; then
-            installedVersion=$(echo "$selectedOutput" | grep "found app at" | sed -E 's/.*version ([^,]+).*/\1/')
+            installedVersion=$(echo "$selectedOutput" | grep "found app at" | sed -E 's/.*version ([^,]+),.*/\1/')
         elif echo "$selectedOutput" | grep -q "Installed"; then
-            installedVersion=$(echo "$selectedOutput" | grep "Installed" | sed -E 's/.*version ([^,]+).*/\1/')
+            installedVersion=$(echo "$selectedOutput" | grep "Installed" | sed -E 's/.*Installed.*, version ([^,]+).*/\1/')
         fi
 
         # Echo the installed version
@@ -365,6 +365,7 @@ checkCmdOutput () {
         echo "$checkOutput" >> "$logFile"
     fi
 }
+
 
 # Check the currently logged in user
 currentUser=$(stat -f "%Su" /dev/console)
