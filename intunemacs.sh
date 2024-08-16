@@ -345,7 +345,7 @@ checkCmdOutput () {
 
         # Determine the installed version
         if echo "$selectedOutput" | grep -q "No newer version available."; then
-            installedVersion=$(echo "$selectedOutput" | grep "found app at" | sed -E 's/.*version ([^,]+),.*/\1/')
+            installedVersion=$(echo "$selectedOutput" | grep "appversion:" | sed -E 's/.*appversion: ([^ ]+).*/\1/')
         elif echo "$selectedOutput" | grep -q "Installed"; then
             installedVersion=$(echo "$selectedOutput" | grep "Installed" | sed -E 's/.*Installed.*, version ([^,]+).*/\1/')
         fi
@@ -365,7 +365,6 @@ checkCmdOutput () {
         echo "$checkOutput" >> "$logFile"
     fi
 }
-
 
 # Check the currently logged in user
 currentUser=$(stat -f "%Su" /dev/console)
