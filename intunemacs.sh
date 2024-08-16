@@ -342,8 +342,8 @@ checkCmdOutput () {
         selectedOutput="$(echo "${checkOutput}" | grep --binary-files=text -E ": (REQ|INFO)" || true)"
 
         # Determine the installed version
-        if echo "$selectedOutput" | grep -q "No newer version available."; then
-            installedVersion=$(echo "$selectedOutput" | grep "found app at" | sed -E 's/.*version ([^,]+).*/\1/')
+        if echo "$selectedOutput" | grep -q "There is no newer version available."; then
+            installedVersion=$(echo "$selectedOutput" | grep "appversion:" | awk '{print $NF}')
         elif echo "$selectedOutput" | grep -q "Installed"; then
             installedVersion=$(echo "$selectedOutput" | grep "Installed" | sed -E 's/.*version ([^,]+).*/\1/')
         fi
