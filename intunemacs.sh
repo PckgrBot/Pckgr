@@ -342,8 +342,8 @@ checkCmdOutput () {
         # Extract relevant information
         selectedOutput="$(echo "${checkOutput}" | grep --binary-files=text -E ": (REQ|INFO|WARN)" || true)"
 
-        # Check if "There is no newer version available" or "No new version to install" is present
-        if echo "$selectedOutput" | grep -q -e "There is no newer version available." -e "No new version to install"; then
+        # Check if "There is no newer version available", "No new version to install", or "same as installed" is present
+        if echo "$selectedOutput" | grep -q -e "There is no newer version available." -e "No new version to install" -e "same as installed"; then
             # Extract the installed version from the appversion line
             installedVersion=$(echo "$selectedOutput" | awk -F'appversion: ' '/appversion:/ {print $2}' | awk '{print $1}')
         else
