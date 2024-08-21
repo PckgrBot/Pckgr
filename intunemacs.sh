@@ -302,7 +302,7 @@ dialog_printlog "$(date +%F\ %T) : [LOG-END] ${dialog_log_message}"
 LOGO="microsoft"
 
 item=""
-
+run=""
 # Dialog icon and overlay icon
 icon=""
 overlayicon=""
