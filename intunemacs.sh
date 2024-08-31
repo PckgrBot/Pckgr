@@ -52,6 +52,15 @@ printlog(){
 }
 printlog "[LOG-BEGIN] ${log_message}"
 
+# No sleeping
+/usr/bin/caffeinate -d -i -m -u &
+caffeinatepid=$!
+caffexit () {
+    kill "$caffeinatepid" || true
+    printlog "[LOG-END] Status $1"
+    exit $1
+}
+
 name="Installomator"
 printlog "$name check for installation"
 # download URL, version and Expected Team ID
