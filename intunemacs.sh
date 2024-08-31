@@ -33,8 +33,14 @@ while ! mkdir "$LOCKDIR" 2>/dev/null; do
 done
 # Ensure the lock directory is removed when the script exits
 trap 'rm -rf "$LOCKDIR"' EXIT
+
+scriptVersion="9.7"
+export PATH=/usr/bin:/bin:/usr/sbin:/sbin
+
+# Mark: Constants, logging and caffeinate
 log_message="Installomator install, v$scriptVersion"
 label="Inst-v$scriptVersion"
+
 log_location="/private/var/log/Installomator.log"
 printlog(){
     timestamp=$(date +%F\ %T)
