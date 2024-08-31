@@ -45,9 +45,9 @@ log_location="/private/var/log/Installomator.log"
 printlog(){
     timestamp=$(date +%F\ %T)
     if [[ "$(whoami)" == "root" ]]; then
-        #echo "$timestamp :: $label : $1" | tee -a $log_location
+        echo "$timestamp :: $label : $1" | tee -a $log_location
     else
-        #echo "$timestamp :: $label : $1"
+        echo "$timestamp :: $label : $1"
     fi
 }
 printlog "[LOG-BEGIN] ${log_message}"
