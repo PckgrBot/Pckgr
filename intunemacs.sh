@@ -34,6 +34,17 @@ done
 # Ensure the lock directory is removed when the script exits
 trap 'rm -rf "$LOCKDIR"' EXIT
 
+log_location="/private/var/log/Installomator.log"
+printlog(){
+    timestamp=$(date +%F\ %T)
+    if [[ "$(whoami)" == "root" ]]; then
+        echo "$timestamp :: $label : $1" | tee -a $log_location
+    else
+        echo "$timestamp :: $label : $1"
+    fi
+}
+printlog "[LOG-BEGIN] ${log_message}"
+
 # Verify that Installomator has been installed
 destFile="/usr/local/Installomator/Installomator.sh"
 currentInstalledVersion="$(${destFile} version 2>/dev/null || true)"
