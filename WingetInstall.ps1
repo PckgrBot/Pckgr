@@ -1,4 +1,4 @@
-﻿##*===============================================
+Test﻿##*===============================================
 ##* Check/Install C++ (x64)
 ##*===============================================
 $Apps = Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall, HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Select-Object -Property DisplayName, DisplayVersion | Sort DisplayName
