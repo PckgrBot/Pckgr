@@ -331,7 +331,6 @@ fi
 
 # dockutil variables
 addToDock="0" # with dockutil after installation (0 if not)
-#appPath=""
 
 # Other variables
 dialog_command_file="/var/tmp/dialog.log"
