@@ -320,7 +320,7 @@ if [ -n "${appPath}" ]; then
     # Check if app is installed
     # We only want this to run if it's already installed
     if [ ! -e "${appPath}" ]; then
-        echo "App not detected."
+        echo "Application not detected."
         exit 0
     fi
     echo "${appPath} Found!"
