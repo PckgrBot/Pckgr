@@ -323,7 +323,7 @@ if [ -n "${appPath}" ]; then
         echo "Application not detected."
         exit 0
     fi
-    echo "${appPath} Found!"
+    #echo "${appPath} Found!"
 else
     echo "appPath is empty, skipping check."
 fi
