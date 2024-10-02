@@ -553,8 +553,13 @@ else
     sleep 0.1
 fi
 
-# Install software using Installomator
-cmdOutput="$(${destFile} ${item} LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} || true)"
+# Check if the item is 'microsoftcompanyportal' and set the specific arguments
+if [[ "$item" == "microsoftcompanyportal" ]]; then
+    cmdOutput="$(${destFile} valuesfromarguments name=\"Company\ Portal\" type=pkg downloadURL=https://officecdn.microsoft.com/pr/C1297A47-86C4-4C1F-97FA-950631F94777/MacAutoupdate/CompanyPortal-Installer.pkg appNewVersion=${newappversion} versionKey=\"CFBundleShortVersionString\" expectedTeamID=UBF8T346G9 LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} || true)"
+else
+    # Install software using Installomator for other items
+    cmdOutput="$(${destFile} ${item} LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} || true)"
+fi
 checkCmdOutput "${cmdOutput}"
 
 # Mark: dockutil stuff
