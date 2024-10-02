@@ -311,6 +311,7 @@ LOGO="microsoft"
 item=""
 appPath=""
 run=""
+newappversion=""
 # Dialog icon and overlay icon
 icon=""
 overlayicon=""
