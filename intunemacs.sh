@@ -310,6 +310,7 @@ LOGO="microsoft"
 
 item=""
 run=""
+newappversion=""
 # Dialog icon and overlay icon
 icon=""
 overlayicon=""
