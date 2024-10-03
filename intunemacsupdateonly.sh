@@ -326,7 +326,8 @@ if [ -n "${appPath}" ]; then
     fi
     #echo "${appPath} Found!"
 else
-    echo "appPath is empty, skipping check."
+    echo "appPath is empty, exiting..."
+    exit 0
 fi
 
 
