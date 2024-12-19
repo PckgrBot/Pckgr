@@ -356,7 +356,7 @@ checkCmdOutput () {
             installedVersion=$(echo "$selectedOutput" | awk -F'appversion: ' '/appversion:/ {print $2}' | awk '{print $1}')
         elif echo "$selectedOutput" | grep -q "found app at .*version"; then
             # Extract the installed version from the "found app at" line
-            installedVersion=$(echo "$selectedOutput" | grep -oE "version [^,]+" | awk '{print $2}')
+            installedVersion=$(echo "$selectedOutput" | grep -oE "version [0-9]+\.[0-9]+\.[0-9]+" | awk '{print $2}')
         else
             # Extract the installed version from the Installed line
             installedVersion=$(echo "$selectedOutput" | grep -oE "Installed .* version [^,]+" | awk '{print $NF}')
