@@ -350,13 +350,16 @@ checkCmdOutput () {
         # Extract relevant information
         selectedOutput="$(echo "${checkOutput}" | grep --binary-files=text -E ": (REQ|INFO|WARN)" || true)"
 
-        # Check if "There is no newer version available", "No new version to install", or "same as installed" is present
+        # Check for version-related messages
         if echo "$selectedOutput" | grep -q -e "There is no newer version available." -e "No new version to install" -e "same as installed"; then
             # Extract the installed version from the appversion line
             installedVersion=$(echo "$selectedOutput" | awk -F'appversion: ' '/appversion:/ {print $2}' | awk '{print $1}')
-        else
-            # Extract the installed version from the Installed line
-            installedVersion=$(echo "$selectedOutput" | grep -oE "Installed .* version [^,]+" | awk '{print $NF}')
+        elif echo "$selectedOutput" | grep -q "Installed .* version"; then
+            # Extract the installed version from the last "Installed" line
+            installedVersion=$(echo "$selectedOutput" | grep -oE "Installed .* version [^,]+" | tail -1 | awk '{print $NF}')
+        elif echo "$selectedOutput" | grep -q "found app at .*version"; then
+            # As a last resort, extract the version from the "found app at" line
+            installedVersion=$(echo "$selectedOutput" | grep -oE "found app at .*version [0-9]+\.[0-9]+\.[0-9]+" | tail -1 | awk '{print $NF}')
         fi
 
         # Echo the installed version
