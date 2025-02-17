@@ -3,7 +3,6 @@ $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\"
 $displayName = "grepWin x64"
 $installLocation = "C:\Windows\system32\config\systemprofile\AppData\Local\Programs\grepWin\"
 
-# Check if the registry key exists
 if (Test-Path -Path $registryPath) {
     # Get the subkeys
     $subKeys = Get-ChildItem -Path $registryPath
