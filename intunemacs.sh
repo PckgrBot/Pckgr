@@ -314,6 +314,7 @@ newappversion=""
 # Dialog icon and overlay icon
 icon=""
 overlayicon=""
+#forceupdate
 forceupdate=""
 
 # dockutil variables
