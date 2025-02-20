@@ -314,7 +314,7 @@ newappversion=""
 # Dialog icon and overlay icon
 icon=""
 overlayicon=""
-foreceupdate=""
+forceupdate=""
 
 # dockutil variables
 addToDock="0" # with dockutil after installation (0 if not)
