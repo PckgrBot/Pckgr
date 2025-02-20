@@ -314,6 +314,7 @@ newappversion=""
 # Dialog icon and overlay icon
 icon=""
 overlayicon=""
+foreceupdate=""
 
 # dockutil variables
 addToDock="0" # with dockutil after installation (0 if not)
@@ -323,7 +324,11 @@ appPath=""
 dialog_command_file="/var/tmp/dialog.log"
 dialogBinary="/usr/local/bin/dialog"
 dockutil="/usr/local/bin/dockutil"
-installomatorOptions="BLOCKING_PROCESS_ACTION=prompt_user DIALOG_CMD_FILE=${dialog_command_file}" # Separated by space
+if [ "$forceupdate" = "true" ]; then
+    installomatorOptions="BLOCKING_PROCESS_ACTION=ignore DIALOG_CMD_FILE=${dialog_command_file}"
+else
+    installomatorOptions="BLOCKING_PROCESS_ACTION=prompt_user DIALOG_CMD_FILE=${dialog_command_file}"
+fi
 scriptVersion="10.5"
 # PATH declaration
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
