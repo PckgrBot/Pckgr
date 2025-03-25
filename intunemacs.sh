@@ -312,7 +312,7 @@ item=""
 run=""
 newappversion=""
 forceupdate=""
-enabledialog="true"  # Set to "false" to disable
+enabledialog="true"
 # Dialog icon and overlay icon
 icon=""
 overlayicon=""
