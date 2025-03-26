@@ -311,12 +311,11 @@ LOGO="microsoft"
 item=""
 run=""
 newappversion=""
-forceupdate=""
-enabledialog="true"
 # Dialog icon and overlay icon
 icon=""
 overlayicon=""
-
+#forceupdate
+forceupdate=""
 
 # dockutil variables
 addToDock="0" # with dockutil after installation (0 if not)
@@ -522,7 +521,7 @@ else
     fi
     #echo "LOGO: $LOGO"
     #echo "icon: ${icon}"
-    if [ "$enabledialog" = "true" ]; then
+
     # display first screen
     dialogCMD=("$dialogBinary"
            --title none
@@ -538,9 +537,16 @@ else
     if [[ -n "$overlayicon" ]]; then
         dialogCMD+=("--overlayicon" ${overlayicon})
     fi
-        "${dialogCMD[@]}" &
-        sleep 0.1
-    fi
+
+    #echo "dialogCMD: ${dialogCMD[*]}"
+
+    "${dialogCMD[@]}" &
+
+    #echo "$(date +%F\ %T) : SwiftDialog started!"
+
+    # give everything a moment to catch up
+    sleep 0.1
+fi
 
 # Check if the item is 'microsoftcompanyportal' and set the specific arguments
 if [[ "$item" == "microsoftcompanyportal" ]]; then
