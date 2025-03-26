@@ -553,7 +553,7 @@ if [[ "$item" == "microsoftcompanyportal" ]]; then
     cmdOutput="$(${destFile} valuesfromarguments name=\"Company\ Portal\" type=pkg downloadURL=https://officecdn.microsoft.com/pr/C1297A47-86C4-4C1F-97FA-950631F94777/MacAutoupdate/CompanyPortal-Installer.pkg appNewVersion=${newappversion} versionKey=\"CFBundleShortVersionString\" expectedTeamID=UBF8T346G9 LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} || true)"
 else
     # Install software using Installomator for other items
-    cmdOutput="$(${destFile} ${item} LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} || true)"
+    cmdOutput="$(${destFile} ${item} LOGO=$LOGO NOTIFY_DIALOG=0 ${installomatorOptions} ${installomatorNotify} || true)"
 fi
 
 # Check the command output
