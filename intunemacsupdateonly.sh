@@ -316,6 +316,7 @@ newappversion=""
 icon=""
 overlayicon=""
 forceupdate=""
+enabledialog="false"
 
 # Only check if appPath is not empty
 if [ -n "${appPath}" ]; then
@@ -423,11 +424,10 @@ caffexit () {
 # Mark: Installation begins
 installomatorVersion="$(${destFile} version | cut -d "." -f1 || true)"
 
-if [[ $installomatorVersion -lt 10 ]] || [[ $(sw_vers -buildVersion | cut -c1-2) -lt 20 ]]; then
-    echo "Skipping swiftDialog UI, using notifications."
+if [[ $installomatorVersion -lt 10 ]] || [[ $(sw_vers -buildVersion | cut -c1-2) -lt 20 ]] || [ "$enabledialog" = "false" ]; then
     #echo "Installomator should be at least version 10 to support swiftDialog. Installed version $installomatorVersion."
     #echo "And macOS 11 Big Sur (build 20A) is required for swiftDialog. Installed build $(sw_vers -buildVersion)."
-    installomatorNotify="NOTIFY=all"
+    installomatorNotify="NOTIFY=success"
 else
     installomatorNotify="NOTIFY=silent"
     # check for Swift Dialog
