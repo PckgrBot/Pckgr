@@ -315,7 +315,7 @@ newappversion=""
 icon=""
 overlayicon=""
 forceupdate=""
-enabledialog="true"
+enabledialog="false"
 
 # dockutil variables
 addToDock="0" # with dockutil after installation (0 if not)
