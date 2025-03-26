@@ -314,8 +314,8 @@ newappversion=""
 # Dialog icon and overlay icon
 icon=""
 overlayicon=""
-#forceupdate
 forceupdate=""
+enabledialog="true"
 
 # dockutil variables
 addToDock="0" # with dockutil after installation (0 if not)
@@ -412,11 +412,10 @@ caffexit () {
 # Mark: Installation begins
 installomatorVersion="$(${destFile} version | cut -d "." -f1 || true)"
 
-if [[ $installomatorVersion -lt 10 ]] || [[ $(sw_vers -buildVersion | cut -c1-2) -lt 20 ]]; then
-    echo "Skipping swiftDialog UI, using notifications."
+if [[ $installomatorVersion -lt 10 ]] || [[ $(sw_vers -buildVersion | cut -c1-2) -lt 20 ]] || [ "$enabledialog" = "false" ]; then
     #echo "Installomator should be at least version 10 to support swiftDialog. Installed version $installomatorVersion."
     #echo "And macOS 11 Big Sur (build 20A) is required for swiftDialog. Installed build $(sw_vers -buildVersion)."
-    installomatorNotify="NOTIFY=all"
+    installomatorNotify="NOTIFY=success"
 else
     installomatorNotify="NOTIFY=silent"
     # check for Swift Dialog
@@ -553,7 +552,7 @@ if [[ "$item" == "microsoftcompanyportal" ]]; then
     cmdOutput="$(${destFile} valuesfromarguments name=\"Company\ Portal\" type=pkg downloadURL=https://officecdn.microsoft.com/pr/C1297A47-86C4-4C1F-97FA-950631F94777/MacAutoupdate/CompanyPortal-Installer.pkg appNewVersion=${newappversion} versionKey=\"CFBundleShortVersionString\" expectedTeamID=UBF8T346G9 LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} || true)"
 else
     # Install software using Installomator for other items
-    cmdOutput="$(${destFile} ${item} LOGO=$LOGO NOTIFY_DIALOG=0 ${installomatorOptions} ${installomatorNotify} || true)"
+    cmdOutput="$(${destFile} ${item} LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} || true)"
 fi
 
 # Check the command output
