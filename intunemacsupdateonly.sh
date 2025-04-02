@@ -57,7 +57,7 @@ printlog "[LOG-BEGIN] ${log_message}"
 name="Installomator"
 printlog "$name check for installation"
 # Set the specific version to install
-specificVersion="10.7" # Replace with your desired version
+specificVersion="10.7"
 
 # download URL and Expected Team ID
 # Method for GitHub pkg with destFile
