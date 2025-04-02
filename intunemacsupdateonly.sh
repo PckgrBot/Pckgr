@@ -56,91 +56,105 @@ printlog "[LOG-BEGIN] ${log_message}"
 
 name="Installomator"
 printlog "$name check for installation"
-# download URL, version and Expected Team ID
+# Set the specific version to install
+specificVersion="10.7" # Replace with your desired version
+
+# download URL and Expected Team ID
 # Method for GitHub pkg with destFile
 gitusername="Installomator"
 gitreponame="Installomator"
-#printlog "$gitusername $gitreponame"
 filetype="pkg"
-downloadURL=$(curl -sfL "https://api.github.com/repos/$gitusername/$gitreponame/releases/latest" | awk -F '"' "/browser_download_url/ && /$filetype\"/ { print \$4; exit }")
-if [[ "$(echo $downloadURL | grep -ioE "https.*.$filetype")" == "" ]]; then
-    printlog "GitHub API failed, trying failover."
-    #downloadURL="https://github.com$(curl -sfL "https://github.com/$gitusername/$gitreponame/releases/latest" | tr '"' "\n" | grep -i "^/.*\/releases\/download\/.*\.$filetype" | head -1)"
-    downloadURL="https://github.com$(curl -sfL "$(curl -sfL "https://github.com/$gitusername/$gitreponame/releases/latest" | tr '"' "\n" | grep -i "expanded_assets" | head -1)" | tr '"' "\n" | grep -i "^/.*\/releases\/download\/.*\.$filetype" | head -1)"
-fi
-#printlog "$downloadURL"
-appNewVersion=$(curl -sLI "https://github.com/$gitusername/$gitreponame/releases/latest" | grep -i "^location" | tr "/" "\n" | tail -1 | sed 's/[^0-9\.]//g')
-#printlog "$appNewVersion"
+
+# Use the specific version tag to create the download URL
+downloadURL="https://github.com/$gitusername/$gitreponame/releases/download/v$specificVersion/Installomator-$specificVersion.pkg"
+appNewVersion="$specificVersion"
 expectedTeamID="JME5BW3F3R"
 
 destFile="/usr/local/Installomator/Installomator.sh"
 currentInstalledVersion="$(${destFile} version 2>/dev/null || true)"
 printlog "${destFile} version: $currentInstalledVersion"
-if [[ ! -e "${destFile}" || "$currentInstalledVersion" != "$appNewVersion" ]]; then
-    printlog "$name not found or version not latest."
-    printlog "${destFile}"
-    printlog "Installing version ${appNewVersion} ..."
-    # Create temporary working directory
-    tmpDir="$(mktemp -d || true)"
-    printlog "Created working directory '$tmpDir'"
-    # Download the installer package
-    printlog "Downloading $name package version $appNewVersion from: $downloadURL"
-    installationCount=0
-    exitCode=9
-    while [[ $installationCount -lt 3 && $exitCode -gt 0 ]]; do
-        curlDownload=$(curl -Ls "$downloadURL" -o "$tmpDir/$name.pkg" || true)
-        curlDownloadStatus=$(echo $?)
-        if [[ $curlDownloadStatus -ne 0 ]]; then
-            printlog "error downloading $downloadURL, with status $curlDownloadStatus"
-            printlog "${curlDownload}"
-            exitCode=1
-        else
-            printlog "Download $name succes."
-            # Verify the download
-            teamID=$(spctl -a -vv -t install "$tmpDir/$name.pkg" 2>&1 | awk '/origin=/ {print $NF }' | tr -d '()' || true)
-            printlog "Team ID for downloaded package: $teamID"
-            # Install the package if Team ID validates
-            if [ "$expectedTeamID" = "$teamID" ] || [ "$expectedTeamID" = "" ]; then
-                printlog "$name package verified. Installing package '$tmpDir/$name.pkg'."
-                pkgInstall=$(installer -verbose -dumplog -pkg "$tmpDir/$name.pkg" -target "/" 2>&1)
-                pkgInstallStatus=$(echo $?)
-                if [[ $pkgInstallStatus -ne 0 ]]; then
-                    printlog "ERROR. $name package installation failed."
-                    printlog "${pkgInstall}"
-                    exitCode=2
-                else
-                    printlog "Installing $name package succes."
-                    exitCode=0
-                fi
-            else
-                printlog "ERROR. Package verification failed for $name before package installation could start. Download link may be invalid."
-                exitCode=3
-            fi
-        fi
-        ((installationCount++))
-        printlog "$installationCount time(s), exitCode $exitCode"
-        if [[ $installationCount -lt 3 ]]; then
-            if [[ $exitCode -gt 0 ]]; then
-                printlog "Sleep a bit before trying download and install again. $installationCount time(s)."
-                printlog "Remove $(rm -fv "$tmpDir/$name.pkg" || true)"
-                sleep 2
-            fi
-        else
-            printlog "Download and install of $name succes."
-        fi
-    done
-    # Remove the temporary working directory
-    printlog "Deleting working directory '$tmpDir' and its contents."
-    printlog "Remove $(rm -Rfv "${tmpDir}" || true)"
-    # Handle installation errors
-    if [[ $exitCode != 0 ]]; then
-        printlog "ERROR. Installation of $name failed. Aborting."
-        caffexit $exitCode
-    else
-        printlog "$name version $appNewVersion installed!"
+
+# Check if we need to remove existing installation
+if [[ -e "${destFile}" ]]; then
+    printlog "Existing Installomator installation found. Removing it before installing version ${appNewVersion}..."
+    rm -f "${destFile}" || true
+    
+    # Also remove the directory if it exists
+    if [[ -d "/usr/local/Installomator" ]]; then
+        rm -rf "/usr/local/Installomator" || true
+        printlog "Removed existing Installomator directory"
     fi
+fi
+
+printlog "Installing specific version ${appNewVersion} ..."
+
+# Create temporary working directory
+tmpDir="$(mktemp -d || true)"
+printlog "Created working directory '$tmpDir'"
+
+# Download the installer package
+printlog "Downloading $name package version $appNewVersion from: $downloadURL"
+installationCount=0
+exitCode=9
+while [[ $installationCount -lt 3 && $exitCode -gt 0 ]]; do
+    curlDownload=$(curl -Ls "$downloadURL" -o "$tmpDir/$name.pkg" || true)
+    curlDownloadStatus=$(echo $?)
+    if [[ $curlDownloadStatus -ne 0 ]]; then
+        printlog "error downloading $downloadURL, with status $curlDownloadStatus"
+        printlog "${curlDownload}"
+        exitCode=1
+    else
+        printlog "Download $name success."
+        # Verify the download
+        teamID=$(spctl -a -vv -t install "$tmpDir/$name.pkg" 2>&1 | awk '/origin=/ {print $NF }' | tr -d '()' || true)
+        printlog "Team ID for downloaded package: $teamID"
+        # Install the package if Team ID validates
+        if [ "$expectedTeamID" = "$teamID" ] || [ "$expectedTeamID" = "" ]; then
+            printlog "$name package verified. Installing package '$tmpDir/$name.pkg'."
+            pkgInstall=$(installer -verbose -dumplog -pkg "$tmpDir/$name.pkg" -target "/" 2>&1)
+            pkgInstallStatus=$(echo $?)
+            if [[ $pkgInstallStatus -ne 0 ]]; then
+                printlog "ERROR. $name package installation failed."
+                printlog "${pkgInstall}"
+                exitCode=2
+            else
+                printlog "Installing $name package success."
+                exitCode=0
+            fi
+        else
+            printlog "ERROR. Package verification failed for $name before package installation could start. Download link may be invalid."
+            exitCode=3
+        fi
+    fi
+    ((installationCount++))
+    printlog "$installationCount time(s), exitCode $exitCode"
+    if [[ $installationCount -lt 3 ]]; then
+        if [[ $exitCode -gt 0 ]]; then
+            printlog "Sleep a bit before trying download and install again. $installationCount time(s)."
+            printlog "Remove $(rm -fv "$tmpDir/$name.pkg" || true)"
+            sleep 2
+        fi
+    else
+        printlog "Download and install of $name success."
+    fi
+done
+
+# Remove the temporary working directory
+printlog "Deleting working directory '$tmpDir' and its contents."
+printlog "Remove $(rm -Rfv "${tmpDir}" || true)"
+
+# Handle installation errors
+if [[ $exitCode != 0 ]]; then
+    printlog "ERROR. Installation of $name failed. Aborting."
+    caffexit $exitCode
 else
-    printlog "$name version $appNewVersion already found. Perfect!"
+    # Verify the installed version
+    installedVersion="$(${destFile} version 2>/dev/null || true)"
+    if [[ "$installedVersion" == "$appNewVersion" ]]; then
+        printlog "$name specific version $appNewVersion installed successfully!"
+    else
+        printlog "WARNING: Installed version ($installedVersion) does not match requested version ($appNewVersion)."
+    fi
 fi
 
 # Check and install Swift Dialog
