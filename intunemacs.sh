@@ -426,7 +426,7 @@ caffexit () {
 # Mark: Installation begins
 installomatorVersion="$(${destFile} version | cut -d "." -f1 || true)"
 
-if [[ $installomatorVersion -lt 10 ]] || [[ $(sw_vers -buildVersion | cut -c1-2) -lt 20 ]] || [ "$enabledialog" = "false" ]; then
+if [[ $(sw_vers -buildVersion | cut -c1-2) -lt 20 ]] || [ "$enabledialog" = "false" ]; then
     #echo "Installomator should be at least version 10 to support swiftDialog. Installed version $installomatorVersion."
     #echo "And macOS 11 Big Sur (build 20A) is required for swiftDialog. Installed build $(sw_vers -buildVersion)."
     installomatorNotify="NOTIFY=success"
@@ -590,7 +590,7 @@ else
 fi
 
 # Mark: Ending
-if [[ $installomatorVersion -ge 10 && $(sw_vers -buildVersion | cut -c1-2) -ge 20 ]] && [ "$enabledialog" != "false" ]; then
+if [[ $(sw_vers -buildVersion | cut -c1-2) -ge 20 ]] && [ "$enabledialog" != "false" ]; then
     # close and quit dialog
     dialogUpdate "progress: complete"
     dialogUpdate "progresstext: Done"
