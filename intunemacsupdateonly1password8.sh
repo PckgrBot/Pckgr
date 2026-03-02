@@ -2,14 +2,14 @@
 # =============================================================================
 #  WARNING: Unauthorized Modification Prohibited
 #  ----------------------------------------------------------------------------
-#  Please note that this script includes security measures designed to detect 
-#  and prevent unauthorized use. Any attempts to alter these security features 
-#  or to bypass the subscription validation process may result in immediate 
+#  Please note that this script includes security measures designed to detect
+#  and prevent unauthorized use. Any attempts to alter these security features
+#  or to bypass the subscription validation process may result in immediate
 #  termination of service and potential legal action.
 #
 #  For support or inquiries, please contact Pckgr support at support@intunepckgr.com.
 #
-#  Thank you for adhering to Pckgr's policies and ensuring the integrity of 
+#  Thank you for adhering to Pckgr's policies and ensuring the integrity of
 #  our services.
 # =============================================================================
 
@@ -18,17 +18,17 @@ MAX_AGE=300  # Maximum age of the lock file in seconds
 
 while ! mkdir "$LOCKDIR" 2>/dev/null; do
     #echo "Another instance of the script is running, waiting..."
-    
+
     # Check if the lock directory is too old using find
     LOCK_AGE=$(find "$LOCKDIR" -type d -maxdepth 0 -mtime +$((MAX_AGE / 60)) -print)
-    
+
     if [ -n "$LOCK_AGE" ]; then
         #echo "The lock directory is too old. Removing stale lock."
         rm -rf "$LOCKDIR"
         mkdir "$LOCKDIR" 2>/dev/null
         break
     fi
-    
+
     sleep 2  # Wait before checking again
 done
 # Ensure the lock directory is removed when the script exits
@@ -40,19 +40,33 @@ export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 # --- BEGIN: values your server populates (placeholders preserved) ---
 LOGO="microsoft"
 
-item=""
-appPath=""
-run=""
-newappversion=""
+item="1password8"
+appPath="/Applications/1Password.app"
+run="9612879482"
+newappversion="8.12.5"
 # Dialog icon and overlay icon
 icon=""
 overlayicon=""
-forceupdate=""
-enabledialog="false"
+forceupdate="false"
+enabledialog="true"
 
 # NEW: AppID placeholder (server populates this just like item/newappversion/etc.)
 AppID=""
 # --- END: values your server populates ---
+
+# --- BEGIN: update-only gate (appPath must exist) ---
+# If appPath is empty, or the app isn't installed at appPath, exit successfully (no-op).
+if [ -z "${appPath}" ]; then
+    echo "appPath is empty, exiting..."
+    exit 0
+fi
+
+# .app bundles are directories; -d is the clearest check.
+if [ ! -d "${appPath}" ]; then
+    echo "Application not detected at ${appPath}. Exiting."
+    exit 0
+fi
+# --- END: update-only gate ---
 
 # If AppID is 1password8, swap to the dev deployment script and exec it
 REPO_URL="https://raw.githubusercontent.com/PckgrBot/Pckgr/main"
@@ -75,7 +89,7 @@ if [ "$AppID" = "1password8" ]; then
     [ -n "$newappversion" ] && sed -i '' "s/newappversion=\"\"/newappversion=\"$(esc "$newappversion")\"/g" "$tmpDev"
     [ -n "$forceupdate" ] && sed -i '' "s/forceupdate=\"\"/forceupdate=\"$(esc "$forceupdate")\"/g" "$tmpDev"
     if [ "$enabledialog" = "true" ]; then
-        sed -i '' 's/enabledialog="false"/enabledialog="true"/g' "$tmpDev"
+        sed -i '' 's/enabledialog="true"/enabledialog="true"/g' "$tmpDev"
     fi
     [ -n "$appPath" ] && sed -i '' "s#appPath=\"\"#appPath=\"$(esc "$appPath")\"#g" "$tmpDev"
     [ -n "$LOGO" ] && sed -i '' "s/LOGO=\"microsoft\"/LOGO=\"$(esc "$LOGO")\"/g" "$tmpDev"
@@ -125,7 +139,7 @@ printlog "${destFile} version: $currentInstalledVersion"
 if [[ -e "${destFile}" ]]; then
     printlog "Existing Installomator installation found. Removing it before installing version ${appNewVersion}..."
     rm -f "${destFile}" || true
-    
+
     # Also remove the directory if it exists
     if [[ -d "/usr/local/Installomator" ]]; then
         rm -rf "/usr/local/Installomator" || true
