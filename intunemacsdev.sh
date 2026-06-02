@@ -16,6 +16,17 @@
 LOCKDIR="/tmp/pckgrmac.lock"
 MAX_AGE=300  # Maximum age of the lock file in seconds
 
+# Beta Installomator override (downloaded at runtime for beta labels); cleaned up on exit
+betaInstallomator=""
+
+cleanup() {
+    if [[ -n "$betaInstallomator" && -f "$betaInstallomator" ]]; then
+        rm -f "$betaInstallomator" || true
+    fi
+
+    rm -rf "$LOCKDIR" || true
+}
+
 while ! mkdir "$LOCKDIR" 2>/dev/null; do
     #echo "Another instance of the script is running, waiting..."
     
@@ -31,8 +42,8 @@ while ! mkdir "$LOCKDIR" 2>/dev/null; do
     
     sleep 2  # Wait before checking again
 done
-# Ensure the lock directory is removed when the script exits
-trap 'rm -rf "$LOCKDIR"' EXIT
+# Ensure the lock directory (and any beta Installomator) is removed when the script exits
+trap cleanup EXIT
 
 scriptVersion="9.7"
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
@@ -418,6 +429,68 @@ if [ ! -e "${destFile}" ]; then
     exit 99
 fi
 
+# =============================================================================
+# Temporary latest Installomator override
+# For labels not yet covered by the packaged Installomator release, run the
+# latest Installomator.sh from the development (main) branch instead of the
+# installed release. Add labels to betaLabels as new ones are needed, and
+# remove them once they are covered by the packaged Installomator release.
+# =============================================================================
+betaLabels="
+claudedesktop
+"
+
+installomatorRunner="${destFile}"
+useBeta=0
+
+for betaLabel in $betaLabels; do
+    if [[ "$item" == "$betaLabel" ]]; then
+        useBeta=1
+        break
+    fi
+done
+
+if [[ "$useBeta" -eq 1 ]]; then
+    betaInstallomator="/tmp/pckgr-installomator-latest.sh"
+    # Pull from the development (main) branch: these labels are not yet in the
+    # public release/release branch, but they are present in main.
+    betaURL="https://raw.githubusercontent.com/Installomator/Installomator/main/Installomator.sh"
+
+    echo "Using temporary latest Installomator for label: $item"
+
+    betaDownloadOutput=$(curl -fsL --retry 3 "$betaURL" -o "$betaInstallomator" 2>&1)
+    betaDownloadStatus=$?
+
+    if [[ $betaDownloadStatus -ne 0 ]]; then
+        echo "ERROR: Failed to download temporary Installomator."
+        echo "$betaDownloadOutput"
+        rm -f "$betaInstallomator" || true
+        exit 98
+    fi
+
+    if [[ ! -s "$betaInstallomator" ]]; then
+        echo "ERROR: Temporary Installomator download is empty."
+        rm -f "$betaInstallomator" || true
+        exit 98
+    fi
+
+    if ! /bin/zsh -n "$betaInstallomator" 2>/dev/null; then
+        echo "ERROR: Temporary Installomator failed syntax validation."
+        rm -f "$betaInstallomator" || true
+        exit 98
+    fi
+
+    chmod 755 "$betaInstallomator"
+    xattr -dr com.apple.quarantine "$betaInstallomator" 2>/dev/null || true
+
+    installomatorRunner="$betaInstallomator"
+
+    echo "Temporary Installomator ready: $installomatorRunner"
+    echo "Temporary Installomator version: $("${installomatorRunner}" version 2>/dev/null || true)"
+else
+    echo "Using installed Installomator for label: $item"
+fi
+
 # No sleeping
 /usr/bin/caffeinate -d -i -m -u &
 caffeinatepid=$!
@@ -427,7 +500,7 @@ caffexit () {
 }
 
 # Mark: Installation begins
-installomatorVersion="$(${destFile} version | cut -d "." -f1 || true)"
+installomatorVersion="$(${installomatorRunner} version | cut -d "." -f1 || true)"
 
 if [[ $(sw_vers -buildVersion | cut -c1-2) -lt 20 ]] || [ "$enabledialog" = "false" ]; then
     #echo "Installomator should be at least version 10 to support swiftDialog. Installed version $installomatorVersion."
@@ -439,12 +512,12 @@ else
     if [[ ! -x $dialogBinary ]]; then
         echo "Cannot find dialog at $dialogBinary"
         # Install using Installlomator
-        cmdOutput="$(${destFile} dialog LOGO=$LOGO BLOCKING_PROCESS_ACTION=ignore LOGGING=REQ NOTIFY=silent || true)"
+        cmdOutput="$(${installomatorRunner} dialog LOGO=$LOGO BLOCKING_PROCESS_ACTION=ignore LOGGING=REQ NOTIFY=silent || true)"
         checkCmdOutput "${cmdOutput}"
     fi
 
     # Configure and display swiftDialog
-    itemName=$( ${destFile} ${item} RETURN_LABEL_NAME=1 LOGGING=REQ INSTALL=force | tail -1 || true )
+    itemName=$( ${installomatorRunner} ${item} RETURN_LABEL_NAME=1 LOGGING=REQ INSTALL=force | tail -1 || true )
     if [[ "$itemName" != "#" ]]; then
         message="Installing ${itemName}…"
     else
@@ -555,11 +628,11 @@ fi
 
 # Check if the item is 'microsoftcompanyportal' and set the specific arguments
 if [[ "$item" == "microsoftcompanyportal" ]]; then
-    cmdOutput="$(${destFile} valuesfromarguments name=\"Company\ Portal\" type=pkg downloadURL=https://officecdn.microsoft.com/pr/C1297A47-86C4-4C1F-97FA-950631F94777/MacAutoupdate/CompanyPortal-Installer.pkg appNewVersion=${newappversion} versionKey=\"CFBundleShortVersionString\" expectedTeamID=UBF8T346G9 LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} || true)"
+    cmdOutput="$(${installomatorRunner} valuesfromarguments name=\"Company\ Portal\" type=pkg downloadURL=https://officecdn.microsoft.com/pr/C1297A47-86C4-4C1F-97FA-950631F94777/MacAutoupdate/CompanyPortal-Installer.pkg appNewVersion=${newappversion} versionKey=\"CFBundleShortVersionString\" expectedTeamID=UBF8T346G9 LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} || true)"
 else
     # Install software using Installomator for other items
     # >>> Added ${EXTRA_ARGS} so 1password8 passes packageID=
-    cmdOutput="$(${destFile} ${item} LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} ${EXTRA_ARGS} || true)"
+    cmdOutput="$(${installomatorRunner} ${item} LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} ${EXTRA_ARGS} || true)"
 fi
 
 # Check the command output
@@ -571,7 +644,7 @@ if [[ $addToDock -eq 1 ]]; then
     if [[ ! -d $dockutil ]]; then
         echo "Cannot find dockutil at $dockutil, trying installation"
         # Install using Installlomator
-        cmdOutput="$(${destFile} dockutil LOGO=$LOGO BLOCKING_PROCESS_ACTION=ignore LOGGING=REQ NOTIFY=silent || true)"
+        cmdOutput="$(${installomatorRunner} dockutil LOGO=$LOGO BLOCKING_PROCESS_ACTION=ignore LOGGING=REQ NOTIFY=silent || true)"
         checkCmdOutput "${cmdOutput}"
     fi
     echo "Adding to Dock"
