@@ -2,37 +2,50 @@
 # =============================================================================
 #  WARNING: Unauthorized Modification Prohibited
 #  ----------------------------------------------------------------------------
-#  Please note that this script includes security measures designed to detect 
-#  and prevent unauthorized use. Any attempts to alter these security features 
-#  or to bypass the subscription validation process may result in immediate 
+#  Please note that this script includes security measures designed to detect
+#  and prevent unauthorized use. Any attempts to alter these security features
+#  or to bypass the subscription validation process may result in immediate
 #  termination of service and potential legal action.
 #
 #  For support or inquiries, please contact Pckgr support at support@intunepckgr.com.
 #
-#  Thank you for adhering to Pckgr's policies and ensuring the integrity of 
+#  Thank you for adhering to Pckgr's policies and ensuring the integrity of
 #  our services.
 # =============================================================================
 
 LOCKDIR="/tmp/pckgrmac.lock"
 MAX_AGE=300  # Maximum age of the lock file in seconds
 
+# Beta Installomator override (downloaded at runtime for beta labels); cleaned up on exit
+betaInstallomator=""
+
+cleanup() {
+    if [[ -n "$betaInstallomator" && -f "$betaInstallomator" ]]; then
+        rm -f "$betaInstallomator" || true
+    fi
+
+    rm -rf "$LOCKDIR" || true
+}
+
 while ! mkdir "$LOCKDIR" 2>/dev/null; do
     #echo "Another instance of the script is running, waiting..."
-    
-    # Check if the lock directory is too old using find
-    LOCK_AGE=$(find "$LOCKDIR" -type d -maxdepth 0 -mtime +$((MAX_AGE / 60)) -print)
-    
+
+    # Check if the lock directory is too old using find.
+    # MAX_AGE is in seconds, so divide by 60 for minutes and use -mmin (NOT
+    # -mtime, which is in days and would only clear a lock after MAX_AGE days).
+    LOCK_AGE=$(find "$LOCKDIR" -type d -maxdepth 0 -mmin +$((MAX_AGE / 60)) -print 2>/dev/null || true)
+
     if [ -n "$LOCK_AGE" ]; then
         #echo "The lock directory is too old. Removing stale lock."
         rm -rf "$LOCKDIR"
         mkdir "$LOCKDIR" 2>/dev/null
         break
     fi
-    
+
     sleep 2  # Wait before checking again
 done
-# Ensure the lock directory is removed when the script exits
-trap 'rm -rf "$LOCKDIR"' EXIT
+# Ensure the lock directory (and any beta Installomator) is removed when the script exits
+trap cleanup EXIT
 
 scriptVersion="9.7"
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
@@ -78,7 +91,7 @@ printlog "${destFile} version: $currentInstalledVersion"
 if [[ -e "${destFile}" ]]; then
     printlog "Existing Installomator installation found. Removing it before installing version ${appNewVersion}..."
     rm -f "${destFile}" || true
-    
+
     # Also remove the directory if it exists
     if [[ -d "/usr/local/Installomator" ]]; then
         rm -rf "/usr/local/Installomator" || true
@@ -354,10 +367,13 @@ addToDock="0" # with dockutil after installation (0 if not)
 dialog_command_file="/var/tmp/dialog.log"
 dialogBinary="/usr/local/bin/dialog"
 dockutil="/usr/local/bin/dockutil"
+# DEBUG=0 is required for Installomator to actually install. Its built-in
+# default is DEBUG=1 (dry-run), which downloads/verifies but skips the
+# remove/copy/chown steps, so nothing is installed.
 if [ "$forceupdate" = "true" ]; then
-    installomatorOptions="BLOCKING_PROCESS_ACTION=ignore DIALOG_CMD_FILE=${dialog_command_file}"
+    installomatorOptions="BLOCKING_PROCESS_ACTION=ignore DIALOG_CMD_FILE=${dialog_command_file} DEBUG=0"
 else
-    installomatorOptions="BLOCKING_PROCESS_ACTION=prompt_user DIALOG_CMD_FILE=${dialog_command_file}"
+    installomatorOptions="BLOCKING_PROCESS_ACTION=prompt_user DIALOG_CMD_FILE=${dialog_command_file} DEBUG=0"
 fi
 scriptVersion="10.5"
 # PATH declaration
@@ -427,6 +443,68 @@ if [ ! -e "${destFile}" ]; then
     exit 99
 fi
 
+# =============================================================================
+# Temporary latest Installomator override
+# For labels not yet covered by the packaged Installomator release, run the
+# latest Installomator.sh from the development (main) branch instead of the
+# installed release. Add labels to betaLabels as new ones are needed, and
+# remove them once they are covered by the packaged Installomator release.
+# =============================================================================
+betaLabels="
+claudedesktop
+"
+
+installomatorRunner="${destFile}"
+useBeta=0
+
+for betaLabel in $betaLabels; do
+    if [[ "$item" == "$betaLabel" ]]; then
+        useBeta=1
+        break
+    fi
+done
+
+if [[ "$useBeta" -eq 1 ]]; then
+    betaInstallomator="/tmp/pckgr-installomator-latest.sh"
+    # Pull from the development (main) branch: these labels are not yet in the
+    # public release/release branch, but they are present in main.
+    betaURL="https://raw.githubusercontent.com/Installomator/Installomator/main/Installomator.sh"
+
+    printlog "Using temporary latest Installomator for label: $item"
+
+    betaDownloadOutput=$(curl -fsL --retry 3 "$betaURL" -o "$betaInstallomator" 2>&1)
+    betaDownloadStatus=$?
+
+    if [[ $betaDownloadStatus -ne 0 ]]; then
+        printlog "ERROR: Failed to download temporary Installomator."
+        printlog "$betaDownloadOutput"
+        rm -f "$betaInstallomator" || true
+        exit 98
+    fi
+
+    if [[ ! -s "$betaInstallomator" ]]; then
+        printlog "ERROR: Temporary Installomator download is empty."
+        rm -f "$betaInstallomator" || true
+        exit 98
+    fi
+
+    if ! /bin/zsh -n "$betaInstallomator" 2>/dev/null; then
+        printlog "ERROR: Temporary Installomator failed syntax validation."
+        rm -f "$betaInstallomator" || true
+        exit 98
+    fi
+
+    chmod 755 "$betaInstallomator"
+    xattr -dr com.apple.quarantine "$betaInstallomator" 2>/dev/null || true
+
+    installomatorRunner="$betaInstallomator"
+
+    printlog "Temporary Installomator ready: $installomatorRunner"
+    printlog "Temporary Installomator version: $("${installomatorRunner}" version 2>/dev/null || true)"
+else
+    printlog "Using installed Installomator for label: $item"
+fi
+
 # No sleeping
 /usr/bin/caffeinate -d -i -m -u &
 caffeinatepid=$!
@@ -436,7 +514,7 @@ caffexit () {
 }
 
 # Mark: Installation begins
-installomatorVersion="$(${destFile} version | cut -d "." -f1 || true)"
+installomatorVersion="$(${installomatorRunner} version | cut -d "." -f1 || true)"
 
 if [[ $(sw_vers -buildVersion | cut -c1-2) -lt 20 ]] || [ "$enabledialog" = "false" ]; then
     #echo "Installomator should be at least version 10 to support swiftDialog. Installed version $installomatorVersion."
@@ -448,12 +526,12 @@ else
     if [[ ! -x $dialogBinary ]]; then
         echo "Cannot find dialog at $dialogBinary"
         # Install using Installlomator
-        cmdOutput="$(${destFile} dialog LOGO=$LOGO BLOCKING_PROCESS_ACTION=ignore LOGGING=REQ NOTIFY=silent || true)"
+        cmdOutput="$(${installomatorRunner} dialog LOGO=$LOGO BLOCKING_PROCESS_ACTION=ignore LOGGING=REQ NOTIFY=silent || true)"
         checkCmdOutput "${cmdOutput}"
     fi
 
     # Configure and display swiftDialog
-    itemName=$( ${destFile} ${item} RETURN_LABEL_NAME=1 LOGGING=REQ INSTALL=force | tail -1 || true )
+    itemName=$( ${installomatorRunner} ${item} RETURN_LABEL_NAME=1 LOGGING=REQ INSTALL=force | tail -1 || true )
     if [[ "$itemName" != "#" ]]; then
         message="Installing ${itemName}…"
     else
@@ -575,10 +653,10 @@ fi
 
 # Check if the item is 'microsoftcompanyportal' and set the specific arguments
 if [[ "$item" == "microsoftcompanyportal" ]]; then
-    cmdOutput="$(${destFile} valuesfromarguments name=\"Company\ Portal\" type=pkg downloadURL=https://officecdn.microsoft.com/pr/C1297A47-86C4-4C1F-97FA-950631F94777/MacAutoupdate/CompanyPortal-Installer.pkg appNewVersion=${newappversion} versionKey=\"CFBundleShortVersionString\" expectedTeamID=UBF8T346G9 LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} || true)"
+    cmdOutput="$(${installomatorRunner} valuesfromarguments name=\"Company\ Portal\" type=pkg downloadURL=https://officecdn.microsoft.com/pr/C1297A47-86C4-4C1F-97FA-950631F94777/MacAutoupdate/CompanyPortal-Installer.pkg appNewVersion=${newappversion} versionKey=\"CFBundleShortVersionString\" expectedTeamID=UBF8T346G9 LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} || true)"
 else
     # Install software using Installomator for other items
-    cmdOutput="$(${destFile} ${item} LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} || true)"
+    cmdOutput="$(${installomatorRunner} ${item} LOGO=$LOGO ${installomatorOptions} ${installomatorNotify} || true)"
 fi
 checkCmdOutput "${cmdOutput}"
 
@@ -588,7 +666,7 @@ if [[ $addToDock -eq 1 ]]; then
     if [[ ! -d $dockutil ]]; then
         echo "Cannot find dockutil at $dockutil, trying installation"
         # Install using Installlomator
-        cmdOutput="$(${destFile} dockutil LOGO=$LOGO BLOCKING_PROCESS_ACTION=ignore LOGGING=REQ NOTIFY=silent || true)"
+        cmdOutput="$(${installomatorRunner} dockutil LOGO=$LOGO BLOCKING_PROCESS_ACTION=ignore LOGGING=REQ NOTIFY=silent || true)"
         checkCmdOutput "${cmdOutput}"
     fi
     echo "Adding to Dock"
