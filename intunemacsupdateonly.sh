@@ -452,6 +452,11 @@ fi
 # =============================================================================
 betaLabels="
 claudedesktop
+adobecreativeclouddesktop
+googlegemini
+tabby
+codex
+libreoffice
 "
 
 installomatorRunner="${destFile}"
