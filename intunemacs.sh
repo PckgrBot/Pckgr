@@ -445,6 +445,7 @@ googlegemini
 tabby
 codex
 libreoffice
+tunnelblick
 "
 
 installomatorRunner="${destFile}"
