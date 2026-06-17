@@ -527,7 +527,9 @@ fi
 caffeinatepid=$!
 caffexit () {
     kill "$caffeinatepid"
-    exit 0
+    # Propagate the real exit status so failed installs are reported as failed
+    # to the MDM (previously this always exited 0, masking every failure).
+    exit "${1:-0}"
 }
 
 # Mark: Installation begins

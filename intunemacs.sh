@@ -165,7 +165,9 @@ if [[ ! -e "${destFile}" || "$currentInstalledVersion" != "$appNewVersion" ]]; t
     # Handle installation errors
     if [[ $exitCode != 0 ]]; then
         printlog "ERROR. Installation of $name failed. Aborting."
-        caffexit $exitCode
+        # Plain exit: caffexit() is not defined yet here and caffeinate has not
+        # been started, so calling it produces "caffexit: command not found".
+        exit $exitCode
     else
         # Verify the installed version
         installedVersion="$(${destFile} version 2>/dev/null || true)"
@@ -513,7 +515,9 @@ fi
 caffeinatepid=$!
 caffexit () {
     kill "$caffeinatepid"
-    exit 0
+    # Propagate the real exit status so failed installs are reported as failed
+    # to the MDM (previously this always exited 0, masking every failure).
+    exit "${1:-0}"
 }
 
 # Mark: Installation begins
