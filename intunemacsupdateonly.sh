@@ -469,6 +469,7 @@ tabby
 codex
 libreoffice
 tunnelblick
+minecraftedu
 "
 
 installomatorRunner="${destFile}"
