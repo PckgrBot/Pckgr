@@ -458,6 +458,9 @@ codex
 libreoffice
 tunnelblick
 minecraftedu
+omnissahorizonclient
+wisprflow
+cursorai
 "
 
 installomatorRunner="${destFile}"
