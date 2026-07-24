@@ -474,6 +474,7 @@ omnissahorizonclient
 wisprflow
 cursorai
 basecamp3
+granola
 "
 
 installomatorRunner="${destFile}"
