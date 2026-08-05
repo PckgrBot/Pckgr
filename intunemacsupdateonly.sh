@@ -475,6 +475,7 @@ wisprflow
 cursorai
 basecamp3
 granola
+npssantafull
 "
 
 installomatorRunner="${destFile}"
