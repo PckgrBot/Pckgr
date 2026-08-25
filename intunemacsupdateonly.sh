@@ -476,6 +476,8 @@ cursorai
 basecamp3
 granola
 npssantafull
+boxtools
+linear
 "
 
 installomatorRunner="${destFile}"
