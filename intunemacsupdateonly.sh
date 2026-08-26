@@ -478,6 +478,7 @@ granola
 npssantafull
 boxtools
 linear
+Xcodesapp
 "
 
 installomatorRunner="${destFile}"
