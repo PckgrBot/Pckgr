@@ -70,7 +70,7 @@ printlog "[LOG-BEGIN] ${log_message}"
 name="Installomator"
 printlog "$name check for installation"
 # Set the specific version to install
-specificVersion="10.8"
+specificVersion="10.9"
 
 # download URL and Expected Team ID
 # Method for GitHub pkg with destFile
@@ -450,23 +450,8 @@ fi
 # remove them once they are covered by the packaged Installomator release.
 # =============================================================================
 betaLabels="
-claudedesktop
-adobecreativeclouddesktop
-googlegemini
-tabby
-codex
-libreoffice
 tunnelblick
-minecraftedu
-omnissahorizonclient
-wisprflow
-cursorai
-basecamp3
-granola
-npssantafull
 boxtools
-linear
-Xcodesapp
 "
 
 installomatorRunner="${destFile}"
