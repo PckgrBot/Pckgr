@@ -464,6 +464,7 @@ fi
 betaLabels="
 tunnelblick
 boxtools
+awsvpnclient
 "
 
 installomatorRunner="${destFile}"
