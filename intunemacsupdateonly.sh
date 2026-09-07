@@ -465,6 +465,7 @@ betaLabels="
 tunnelblick
 boxtools
 awsvpnclient
+jamovi
 "
 
 installomatorRunner="${destFile}"
