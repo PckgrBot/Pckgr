@@ -466,6 +466,7 @@ tunnelblick
 boxtools
 awsvpnclient
 jamovi
+wrikeformac
 "
 
 installomatorRunner="${destFile}"
