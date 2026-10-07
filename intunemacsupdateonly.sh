@@ -467,6 +467,7 @@ boxtools
 awsvpnclient
 jamovi
 wrikeformac
+dymoconnectdesktop
 "
 
 installomatorRunner="${destFile}"
