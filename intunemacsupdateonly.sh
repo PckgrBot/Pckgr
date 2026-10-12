@@ -468,6 +468,7 @@ awsvpnclient
 jamovi
 wrikeformac
 dymoconnectdesktop
+capcut
 "
 
 installomatorRunner="${destFile}"
