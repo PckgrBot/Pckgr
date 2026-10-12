@@ -457,6 +457,7 @@ jamovi
 wrikeformac
 dymoconnectdesktop
 capcut
+unifiendpoint
 "
 
 installomatorRunner="${destFile}"
