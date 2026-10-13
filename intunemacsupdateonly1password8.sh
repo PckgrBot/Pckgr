@@ -80,7 +80,7 @@ printlog(){
 printlog "[LOG-BEGIN] ${log_message}"
 
 # No sleeping
-/usr/bin/caffeinate -d -i -m -u &
+/usr/bin/caffeinate -i -m -w $$ &
 caffeinatepid=$!
 caffexit () {
     kill "$caffeinatepid" 2>/dev/null || true

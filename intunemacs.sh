@@ -371,7 +371,7 @@ if [ "$forceupdate" = "true" ]; then
 else
     installomatorOptions="BLOCKING_PROCESS_ACTION=prompt_user DIALOG_CMD_FILE=${dialog_command_file} DEBUG=0"
 fi
-scriptVersion="10.5"
+scriptVersion="10.6"
 # PATH declaration
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 #echo "$(date +%F\ %T) [LOG-BEGIN] $item, v$scriptVersion"
@@ -512,7 +512,7 @@ else
 fi
 
 # No sleeping
-/usr/bin/caffeinate -d -i -m -u &
+/usr/bin/caffeinate -i -m -w $$ &
 caffeinatepid=$!
 caffexit () {
     kill "$caffeinatepid"
