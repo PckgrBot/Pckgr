@@ -458,6 +458,7 @@ wrikeformac
 dymoconnectdesktop
 capcut
 unifiendpoint
+logitechoptionsplus
 "
 
 installomatorRunner="${destFile}"
