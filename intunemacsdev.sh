@@ -358,7 +358,7 @@ fi
 # >>> Added: per-label extra args (used for 1password8 workaround)
 EXTRA_ARGS=""
 
-scriptVersion="10.5"
+scriptVersion="10.6"
 # PATH declaration
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 #echo "$(date +%F\ %T) [LOG-BEGIN] $item, v$scriptVersion"
@@ -492,7 +492,7 @@ else
 fi
 
 # No sleeping
-/usr/bin/caffeinate -d -i -m -u &
+/usr/bin/caffeinate -i -m -w $$ &
 caffeinatepid=$!
 caffexit () {
     kill "$caffeinatepid"
