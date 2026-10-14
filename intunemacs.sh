@@ -459,6 +459,7 @@ dymoconnectdesktop
 capcut
 unifiendpoint
 logitechoptionsplus
+asperaconnect
 "
 
 installomatorRunner="${destFile}"
