@@ -473,6 +473,7 @@ unifiendpoint
 logitechoptionsplus
 asperaconnect
 soapuiopensource
+fiddlereverywhere
 "
 
 installomatorRunner="${destFile}"
