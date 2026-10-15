@@ -460,6 +460,7 @@ capcut
 unifiendpoint
 logitechoptionsplus
 asperaconnect
+soapuiopensource
 "
 
 installomatorRunner="${destFile}"
