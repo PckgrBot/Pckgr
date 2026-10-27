@@ -474,6 +474,7 @@ logitechoptionsplus
 asperaconnect
 soapuiopensource
 fiddlereverywhere
+foxitpdfreader
 "
 
 installomatorRunner="${destFile}"
