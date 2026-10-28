@@ -475,6 +475,7 @@ asperaconnect
 soapuiopensource
 fiddlereverywhere
 foxitpdfreader
+netbird
 "
 
 installomatorRunner="${destFile}"
