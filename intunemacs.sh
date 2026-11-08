@@ -464,6 +464,8 @@ soapuiopensource
 fiddlereverywhere
 foxitpdfreader
 netbird
+chatgpt
+codex
 "
 
 installomatorRunner="${destFile}"
