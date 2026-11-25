@@ -466,6 +466,7 @@ foxitpdfreader
 netbird
 chatgpt
 codex
+tableauprepbuilder
 "
 
 installomatorRunner="${destFile}"
